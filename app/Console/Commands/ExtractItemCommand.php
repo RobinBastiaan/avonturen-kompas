@@ -11,7 +11,7 @@ use Symfony\Component\DomCrawler\Crawler;
 class ExtractItemCommand extends Command
 {
     protected $signature = 'app:extract:item {id : The item ID to extract}';
-    protected $description = 'Extract item data from the Activiteitenbank.';
+    protected $description = 'Extract item data from the Activiteitenbank, and simpley store without creating related entries.';
 
     public function handle(): int
     {
@@ -33,6 +33,8 @@ class ExtractItemCommand extends Command
             $jsonData = json_decode($jsonLd, true, 512, JSON_THROW_ON_ERROR);
             $publishedAt = $jsonData['datePublished'];
             $modifiedAt = $jsonData['dateModified'];
+            // In the original data a Super User is often used as a fake author instead of null.
+            $authorName = $jsonData['author']['name'] === 'Super User' ? null : $jsonData['author']['name'];
 
             // Store content in a database table.
             $extractedItem = new ExtractedItem();
@@ -43,6 +45,7 @@ class ExtractItemCommand extends Command
             $extractedItem->extracted_at = now();
             $extractedItem->published_at = $publishedAt;
             $extractedItem->modified_at = $modifiedAt;
+            $extractedItem->author_name = $authorName;
             $extractedItem->save();
 
             $this->info("Successfully extracted item {$id}!");

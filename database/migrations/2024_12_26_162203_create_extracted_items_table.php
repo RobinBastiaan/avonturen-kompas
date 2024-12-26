@@ -18,11 +18,15 @@ return new class extends Migration
             $table->integer('hits')->default(0);
             $table->mediumText('raw_content');
 
-            $table->timestamp('extracted_at')->nullable();
+            $table->timestamp('extracted_at');
             $table->timestamp('published_at')->nullable();
             $table->timestamp('modified_at')->nullable();
+            $table->string('author_name')->nullable();
 
-            $table->unsignedBigInteger('applied_to')->nullable();
+            $table->foreignId('applied_to')->nullable()->constrained('items');
+
+            $table->index('original_id');
+            $table->index('original_slug');
         });
     }
 

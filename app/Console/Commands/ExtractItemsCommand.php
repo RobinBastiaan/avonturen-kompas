@@ -30,7 +30,7 @@ class ExtractItemsCommand extends Command
             }
 
             try {
-                $exitCode = $this->call('extract:item', [
+                $exitCode = $this->call('app:extract:item', [
                     'id' => $currentId,
                 ]);
 
@@ -47,7 +47,7 @@ class ExtractItemsCommand extends Command
             }
         }
 
-        $this->info("Extraction completed after {$currentId} items with {$failedCount} consecutive failures");
+        $this->info("Extraction completed after {$currentId} items with {$failedCount} consecutive failures.");
         return CommandAlias::SUCCESS;
     }
 }
