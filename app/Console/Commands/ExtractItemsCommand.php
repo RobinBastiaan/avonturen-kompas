@@ -16,14 +16,12 @@ class ExtractItemsCommand extends Command
 
     public function handle(): int
     {
+        $startTime = now();
         $currentId = (int) ($this->argument('id') ?? 1);
         $failedCount = 0;
 
         while ($failedCount < self::MAX_CONSECUTIVE_FAILURES) {
-            // Skip some large known missing item gaps to speed up extraction and reduce the need to make MAX_CONSECUTIVE_FAILURES too large.
-            if (($currentId > 1251 && $currentId < 2048) || ($currentId > 2468 && $currentId < 6086) || ($currentId > 6409 && $currentId < 6918)
-                || ($currentId > 7087 && $currentId < 7123) || ($currentId > 7153 && $currentId < 7190) || ($currentId > 9703 && $currentId < 10027)
-                || ($currentId > 10464 && $currentId < 10625) || ($currentId > 11656 && $currentId < 11686) || ($currentId > 12977 && $currentId < 13055)) {
+            if ($this->isKnownGapItem($currentId)) {
                 $this->warn("Skipped {$currentId} because it is a known gap item.");
                 $currentId++;
                 continue;
@@ -34,12 +32,7 @@ class ExtractItemsCommand extends Command
                     'id' => $currentId,
                 ]);
 
-                if ($exitCode === CommandAlias::SUCCESS) {
-                    $failedCount = 0;
-                } else {
-                    $failedCount++;
-                }
-
+                $failedCount = ($exitCode === CommandAlias::SUCCESS) ? 0 : $failedCount + 1;
                 $currentId++;
             } catch (\Exception $e) {
                 $this->error("Failed to extract item {$currentId}: " . $e->getMessage());
@@ -48,6 +41,20 @@ class ExtractItemsCommand extends Command
         }
 
         $this->info("Extraction completed after {$currentId} items with {$failedCount} consecutive failures.");
+        $totalTime = ceil(now()->diffInSeconds($startTime, true));
+        $this->info("Total extraction time: {$totalTime} seconds");
+
         return CommandAlias::SUCCESS;
+    }
+
+    /**
+     * Skip some large known missing item gaps that are confirmed deleted and not unpublished. This is done to speed up extraction and
+     * reduce the need to make MAX_CONSECUTIVE_FAILURES larger than would be needed otherwise.
+     */
+    protected function isKnownGapItem(int $currentId): bool
+    {
+        return ($currentId > 1251 && $currentId < 2048) || ($currentId > 2468 && $currentId < 6086) || ($currentId > 6409 && $currentId < 6918)
+            || ($currentId > 7087 && $currentId < 7123) || ($currentId > 7153 && $currentId < 7190) || ($currentId > 9703 && $currentId < 10027)
+            || ($currentId > 10464 && $currentId < 10625) || ($currentId > 11656 && $currentId < 11686) || ($currentId > 12977 && $currentId < 13055);
     }
 }
