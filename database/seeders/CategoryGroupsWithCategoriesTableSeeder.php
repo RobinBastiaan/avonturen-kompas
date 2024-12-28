@@ -140,7 +140,7 @@ class CategoryGroupsWithCategoriesTableSeeder extends Seeder
             5  => [
                 'id'                => 6,
                 'is_published'      => 1,
-                'name'              => 'kader',
+                'name'              => 'Kader',
                 'description'       => 'Activiteiten of kampen specifiek voor leidinggevenden en bestuurders',
                 'category_group_id' => 1,
             ],
