@@ -24,7 +24,7 @@ return new class extends Migration
             $table->text('requirements')->nullable();
             $table->text('tips')->nullable();
             $table->text('safety')->nullable();
-            $table->integer('hits')->default(0);
+            $table->unsignedInteger('hits')->default(0);
 
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->foreignId('updated_by')->nullable()->constrained('users');

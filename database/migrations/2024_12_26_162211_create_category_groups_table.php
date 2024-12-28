@@ -17,7 +17,8 @@ return new class extends Migration {
             $table->text('description')->nullable();
             $table->boolean('is_available_for_activities')->default(false);
             $table->boolean('is_available_for_camps')->default(false);
-            $table->integer('use_count')->default(0);
+            $table->unsignedMediumInteger('use_count')->default(0);
+
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->timestamps();

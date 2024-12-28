@@ -29,7 +29,7 @@ use Illuminate\Support\Collection;
  * @property string|null                $requirements
  * @property string|null                $tips
  * @property string|null                $safety
- * @property int                        $hits
+ * @property int                        $hits // Current hits. Use Hits relationship for historical context.
  *
  * @property Carbon|null                $created_at
  * @property Carbon|null                $updated_at
@@ -46,6 +46,7 @@ use Illuminate\Support\Collection;
  * @property Collection|Item[]          $activities
  * @property Collection|User[]          $favoritedBy
  * @property Collection|ExtractedItem[] $appliedFrom
+ * @property Collection|Hits[]          $historicalHits
  */
 #[ScopedBy([PublishedScope::class])]
 class Item extends Model
@@ -128,5 +129,10 @@ class Item extends Model
     public function appliedFrom(): HasMany
     {
         return $this->hasMany(ExtractedItem::class, 'applied_to');
+    }
+
+    public function historicalHits(): HasMany
+    {
+        return $this->hasMany(Hits::class);
     }
 }

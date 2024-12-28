@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\CategoryGroup;
 use App\Models\Comment;
 use App\Models\ExtractedItem;
+use App\Models\Hits;
 use App\Models\Item;
 use App\Models\Tag;
 use App\Models\User;
@@ -62,7 +63,7 @@ class ProcessItemsCommand extends Command
 
         $totalTime = ceil(now()->diffInSeconds($startTime, true));
         $this->newLine();
-        $this->info("Total processing time: {$totalTime} seconds");
+        $this->info("Total item processing time: {$totalTime} seconds");
 
         return CommandAlias::SUCCESS;
     }
@@ -106,6 +107,7 @@ class ProcessItemsCommand extends Command
         $item->categories()->sync($this->extractCategories($extractedItem->raw_content));
         $item->tags()->sync($this->extractTags($extractedItem->raw_content));
         $this->extractComments($item->id, $extractedItem->raw_content);
+        $this->extractHits($item->id, $extractedItem->extracted_at, $extractedItem->hits);
         $item->save();
 
         if ($isCamp) {
@@ -391,6 +393,14 @@ class ProcessItemsCommand extends Command
 
             return $comment;
         });
+    }
+
+    /**
+     * Build an historical overview of hits from extracted items.
+     */
+    protected function extractHits(int $itemId, Carbon $date, int $hits): void
+    {
+        Hits::firstOrCreate(['item_id' => $itemId, 'extracted_at' => $date], ['hits' => $hits]);
     }
 
     protected function formatDate(string $match): Carbon

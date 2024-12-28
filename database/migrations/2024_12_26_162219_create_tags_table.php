@@ -16,7 +16,7 @@ return new class extends Migration
             $table->boolean('is_published')->default(false);
             $table->string('name');
             $table->text('description')->nullable();
-            $table->integer('use_count')->default(0);
+            $table->unsignedMediumInteger('use_count')->default(0);
 
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->foreignId('updated_by')->nullable()->constrained('users');

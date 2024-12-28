@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * Class ExtractedItem.
  *
- * Items are extracted from Activiteitenbank and stored here for later processing.
+ * ExtractedItems are quickly extracted from Activiteitenbank and stored here for later processing.
  *
  * @property int         $id
  * @property int         $original_id

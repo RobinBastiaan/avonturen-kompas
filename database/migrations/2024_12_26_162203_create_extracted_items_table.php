@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('original_id');
             $table->string('original_slug');
-            $table->integer('hits')->default(0);
+            $table->unsignedInteger('hits')->default(0);
             $table->mediumText('raw_content');
 
             $table->timestamp('extracted_at');
