@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Category;
+use App\Models\CategoryGroup;
 use App\Models\Comment;
 use App\Models\ExtractedItem;
 use App\Models\Item;
@@ -133,6 +134,9 @@ class ProcessItemsCommand extends Command
         return null;
     }
 
+    /**
+     * To prevent Items from being added twice, check if it was processed before to update that Item instead.
+     */
     protected function findOrCreateItem(ExtractedItem $extractedItem): Item
     {
         // Check if this item was not processed before.
@@ -284,36 +288,41 @@ class ProcessItemsCommand extends Command
 
         $categories = collect();
         foreach ($matches[0] as $index => $fullMatch) {
-            if ($matches[1][$index]) { // This is an h2 header, and thus a parent category.
-                $category = cache()->remember("category.{$matches[1][$index]}", 3600, function () use ($matches, $index) {
-                    /** @var Category $category */
-                    $category = Category::firstOrNew(['name' => trim(html_entity_decode($matches[1][$index]))]);
-                    $category->is_published = true;
-                    $category->save();
+            if ($matches[1][$index]) { // This is an H2 header, and thus a category group.
+                $categoryGroup = cache()->remember("category_group.{$matches[1][$index]}", 3600, function () use ($matches, $index) {
+                    /** @var CategoryGroup $categoryGroup */
+                    $categoryGroup = CategoryGroup::firstOrNew(['name' => trim(html_entity_decode($matches[1][$index]))]);
+                    $categoryGroup->is_published = true;
+                    $categoryGroup->is_available_for_activities = true;
+                    $categoryGroup->is_available_for_camps = true;
+                    $categoryGroup->save();
 
-                    if ($category->wasRecentlyCreated) {
-                        $this->info("Created new parent category: {$category->name}");
+                    if ($categoryGroup->wasRecentlyCreated) {
+                        $this->info("Created new category group: {$categoryGroup->name}");
                     }
 
-                    return $category;
+                    return $categoryGroup;
                 });
 
-                $categories->push($category);
-                $parentCategory = $category;
-            } elseif ($matches[2][$index]) { // This is an img title, and thus a child category.
-                if (!isset($parentCategory)) {
+                // Note: do not push a category group to be related to the Item, because it is implied from category relationship.
+                $parentCategoryGroup = $categoryGroup;
+            } elseif ($matches[2][$index]) { // This is an img title, and thus a category.
+                if (!isset($parentCategoryGroup)) {
                     throw new \Exception("Parent category for {$matches[2][$index]} is null.");
                 }
 
-                $category = cache()->remember("category.{$matches[2][$index]}", 3600, function () use ($matches, $index, $parentCategory) {
+                $category = cache()->remember("category.{$matches[2][$index]}.group.{$parentCategoryGroup->id}", 3600, function () use ($matches, $index, $parentCategoryGroup) {
                     /** @var Category $category */
-                    $category = Category::firstOrNew(['name' => trim(html_entity_decode($matches[2][$index]))]);
+                    $category = Category::firstOrNew([
+                        'name'              => trim(html_entity_decode($matches[2][$index])),
+                        'category_group_id' => $parentCategoryGroup->id,
+                    ]);
                     $category->is_published = true;
-                    $category->category_id = $parentCategory->id;
+                    $category->category_group_id = $parentCategoryGroup->id;
                     $category->save();
 
                     if ($category->wasRecentlyCreated) {
-                        $this->info("Created new child category for {$parentCategory->name}: {$category->name}");
+                        $this->info("Created new category for category group {$parentCategoryGroup->name}: {$category->name}");
                     }
 
                     return $category;
@@ -333,6 +342,9 @@ class ProcessItemsCommand extends Command
         }
 
         return collect($matches[1])->map(function ($name) {
+            // Fix known misspellings of tags because the original data doesn't support hyphens.
+            $name = $name === 'JOTA JOTI' ? 'JOTA-JOTI' : $name;
+
             return cache()->remember("tag.{$name}", 3600, function () use ($name) {
                 /** @var Tag $tag */
                 $tag = Tag::firstOrNew(['name' => trim(html_entity_decode($name))]);
@@ -423,6 +435,16 @@ class ProcessItemsCommand extends Command
                 SELECT COUNT(DISTINCT ci.item_id)
                 FROM category_item ci
                 WHERE ci.category_id = c.id
+            )
+        ');
+
+        // Set the use_count of category groups to be the sum of their categories.
+        DB::statement('
+            UPDATE category_groups cg
+            SET use_count = (
+                SELECT COALESCE(SUM(c.use_count), 0)
+                FROM categories c
+                WHERE c.category_group_id = cg.id
             )
         ');
 

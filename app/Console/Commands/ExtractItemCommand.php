@@ -26,7 +26,7 @@ class ExtractItemCommand extends Command
 
             // Convert a url like 'https://example.com/123-my-slug' to 'my-slug'.
             $canonicalUrl = $crawler->filter('link[rel="canonical"]')->attr('href');
-            $originalSlug = substr(strstr(substr(strrchr($canonicalUrl, '/'), 1), '-'), 0);
+            $originalSlug = explode('-', basename($canonicalUrl), 2)[1];
             $hits = (int) $crawler->filter('span.itemHits b')->text();
             $content = trim($crawler->filter('#tc4-maincontent')->html());
 

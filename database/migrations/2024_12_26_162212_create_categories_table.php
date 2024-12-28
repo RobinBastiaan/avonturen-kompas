@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->boolean('is_published')->default(false);
             $table->string('name');
             $table->text('description')->nullable();
-            $table->foreignId('category_id')->nullable()->constrained('categories')->nullOnDelete();
+            $table->foreignId('category_group_id')->constrained('category_groups')->cascadeOnDelete();
             $table->integer('use_count')->default(0);
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->foreignId('updated_by')->nullable()->constrained('users');

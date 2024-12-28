@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
  * Class Tag.
  *
  * Tags provide a way to group items with similar content together to be able to find related items.
- * For example: 'Scout Scarf Day', 'Sinterklaas' and 'JOTA JOTI'.
+ * For example: 'Scout Scarf Day', 'Sinterklaas' and 'JOTA-JOTI'.
  *
  * @property int               $id
  * @property boolean           $is_published
