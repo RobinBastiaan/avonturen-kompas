@@ -17,7 +17,7 @@ class ExtractItemCommand extends Command
     {
         $id = $this->argument('id');
 
-        // Try to retrieve the item but note it is impossible to know whether it removed or simply not published.
+        // Try to retrieve the item but note it is impossible to know whether it removed or simply unpublished.
         try {
             $response = Http::withoutVerifying()
                 ->timeout(5)
