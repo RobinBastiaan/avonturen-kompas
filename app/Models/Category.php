@@ -46,6 +46,8 @@ class Category extends Model
         'category_group_id',
     ];
 
+    protected $hidden = ['pivot'];
+
     protected $casts = [
         'is_published' => 'boolean',
     ];
@@ -62,7 +64,7 @@ class Category extends Model
 
     public function categoryGroup(): BelongsTo
     {
-        return $this->belongsTo(CategoryGroup::class, 'category_id');
+        return $this->belongsTo(CategoryGroup::class, 'category_group_id');
     }
 
     public function items(): BelongsToMany

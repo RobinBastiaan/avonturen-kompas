@@ -192,7 +192,7 @@ class ProcessItemsCommand extends Command
     protected function extractSummary(string $content): string
     {
         if (preg_match('/<h2>Waarom \/ doel van de activiteit<\/h2>\s*(.*?)(?=<h2>)/s', $content, $matches)) {
-            return trim($matches[1]);
+            return trim(strip_tags($matches[1]));
         }
 
         return '';
@@ -218,7 +218,7 @@ class ProcessItemsCommand extends Command
 
     protected function extractTips(string $content): ?string
     {
-        if (preg_match('/<h2>Tips<\/h2>(.*?)(?=<h2>)/s', $content, $matches)) {
+        if (preg_match('/<h2>Tips<\/h2>(.*?)(?=<div class="clr">|<h2>)/s', $content, $matches)) {
             return trim($matches[1]);
         }
 

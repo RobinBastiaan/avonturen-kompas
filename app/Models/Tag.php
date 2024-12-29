@@ -44,6 +44,8 @@ class Tag extends Model
         'description',
     ];
 
+    protected $hidden = ['pivot'];
+
     protected $casts = [
         'is_published'        => 'boolean',
         'special_interest_at' => 'date',

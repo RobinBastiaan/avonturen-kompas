@@ -16,7 +16,7 @@ return new class extends Migration
             $table->boolean('is_published')->default(false);
             $table->string('title');
             $table->string('slug');
-            $table->string('hash', 8);
+            $table->string('hash', 6);
             $table->boolean('is_camp')->default(false);
             $table->integer('camp_length')->nullable();
             $table->text('summary');

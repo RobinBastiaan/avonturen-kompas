@@ -24,7 +24,7 @@ use Illuminate\Support\Collection;
  * @property string                     $hash
  * @property boolean                    $is_camp
  * @property int|null                   $camp_length
- * @property string                     $summary
+ * @property string                     $summary // A brief plain text overview of the item's purpose and goals.
  * @property string                     $description
  * @property string|null                $requirements
  * @property string|null                $tips
@@ -65,6 +65,8 @@ class Item extends Model
         'safety',
     ];
 
+    protected $hidden = ['pivot'];
+
     protected $casts = [
         'is_published' => 'boolean',
         'is_camp'      => 'boolean',
@@ -80,7 +82,7 @@ class Item extends Model
                 $item->slug = str()->slug($item->title);
             }
 
-            $item->hash = str()->random(8);
+            $item->hash = str()->random(6);
         });
     }
 

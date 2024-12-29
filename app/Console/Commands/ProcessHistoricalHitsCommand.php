@@ -11,12 +11,13 @@ use Symfony\Component\Console\Command\Command as CommandAlias;
 class ProcessHistoricalHitsCommand extends Command
 {
     protected $signature = 'app:process:historical-hits';
-    protected $description = 'Process historical hits from array. Command to be run after items have been processed.';
+    protected $description = 'Process historical hits from array, which should be run after items have been processed.';
 
     public function handle(): int
     {
         if (!Item::exists()) {
-            $this->error('Please processes items before running this command.');
+            $this->error('Please process items first before running this command.');
+            return CommandAlias::FAILURE;
         }
 
         $startTime = now();
@@ -37,9 +38,21 @@ class ProcessHistoricalHitsCommand extends Command
         return CommandAlias::SUCCESS;
     }
 
+    /**
+     * Find related items from the original ID's, and write them to the Hits model.
+     *
+     * @param string $date In the format 'yyyy-mm-dd'.
+     * @return int The amount of hit entries in the data array.
+     */
     protected function processHitsForDate(string $date): int
     {
-        $historicalHits = self::{'HISTORICAL_HITS_' . str_replace('-', '_', $date)};
+        $constantName = 'HISTORICAL_HITS_' . str_replace('-', '_', $date);
+        if (!defined(self::class . '::' . $constantName)) {
+            $this->error("No historical hits data array found for date {$date}.");
+            return 0;
+        }
+        $historicalHits = constant(self::class . '::' . $constantName);
+
         $historicalHitsCount = count($historicalHits);
         $progressBar = $this->output->createProgressBar($historicalHitsCount);
         $progressBar->start();
@@ -69,6 +82,7 @@ class ProcessHistoricalHitsCommand extends Command
         return $historicalHitsCount;
     }
 
+    // For each date a corresponding array is required.
     const array DATES = [
         '2019-04-01',
         '2020-04-01',
