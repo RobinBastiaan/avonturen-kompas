@@ -21,6 +21,7 @@ use Illuminate\Support\Collection;
  * @property boolean           $is_published
  * @property string            $name // Unique
  * @property string|null       $description
+ * @property Carbon|null       $special_interest_at
  * @property int               $use_count
  *
  * @property Carbon|null       $created_at
@@ -44,7 +45,8 @@ class Tag extends Model
     ];
 
     protected $casts = [
-        'is_published' => 'boolean',
+        'is_published'        => 'boolean',
+        'special_interest_at' => 'date',
     ];
 
     public function createdBy(): BelongsTo
@@ -60,5 +62,23 @@ class Tag extends Model
     public function items(): BelongsToMany
     {
         return $this->belongsToMany(Item::class);
+    }
+
+    /**
+     * Mark the tag as having special interest if the current date is within some time before the special interest.
+     */
+    public function hasSpecialInterest(): bool
+    {
+        if ($this->special_interest_at === null) {
+            return false;
+        }
+
+        $today = Carbon::now()->startOfDay();
+        $specialDay = Carbon::create($this->special_interest_at)->year((int) now()->format('Y'));
+        if ($today->gt($specialDay)) {
+            $specialDay->addYear();
+        }
+
+        return $today->between($specialDay, $specialDay->copy()->subWeeks(2));
     }
 }
