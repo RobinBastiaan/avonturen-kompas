@@ -128,9 +128,9 @@ class ProcessItemsCommand extends Command
         $extractedItem->save();
 
         if ($item->wasRecentlyCreated) {
-            $this->info("Updated Item {$item->id} with data from ExtractedItem {$extractedItem->id}.");
-        } else {
             $this->info("Created Item {$item->id} with data from ExtractedItem {$extractedItem->id}.");
+        } else {
+            $this->info("Updated Item {$item->id} with data from ExtractedItem {$extractedItem->id}.");
         }
 
         return null;
@@ -294,12 +294,13 @@ class ProcessItemsCommand extends Command
                 $categoryGroup = cache()->remember("category_group.{$matches[1][$index]}", 3600, function () use ($matches, $index) {
                     /** @var CategoryGroup $categoryGroup */
                     $categoryGroup = CategoryGroup::firstOrNew(['name' => trim(html_entity_decode($matches[1][$index]))]);
-                    $categoryGroup->is_published = true;
-                    $categoryGroup->is_available_for_activities = true;
-                    $categoryGroup->is_available_for_camps = true;
-                    $categoryGroup->save();
 
                     if ($categoryGroup->wasRecentlyCreated) {
+                        $categoryGroup->is_published = true;
+                        $categoryGroup->is_available_for_activities = true;
+                        $categoryGroup->is_available_for_camps = true;
+                        $categoryGroup->save();
+
                         $this->info("Created new category group: {$categoryGroup->name}");
                     }
 
@@ -346,6 +347,7 @@ class ProcessItemsCommand extends Command
         return collect($matches[1])->map(function ($name) {
             // Fix known misspellings of tags because the original data doesn't support hyphens.
             $name = $name === 'JOTA JOTI' ? 'JOTA-JOTI' : $name;
+            $name = $name === 'Holi Phagwa' ? 'Holi-Phagwa' : $name;
 
             return cache()->remember("tag.{$name}", 3600, function () use ($name) {
                 /** @var Tag $tag */

@@ -13,7 +13,7 @@ class ActivitiesPerAgeGroupController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function __invoke(Request $request): View
+    public function __invoke(): View
     {
         $stats = Item::query()
             ->withoutGlobalScope(PublishedScope::class)

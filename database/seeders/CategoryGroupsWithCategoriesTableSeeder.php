@@ -383,139 +383,146 @@ class CategoryGroupsWithCategoriesTableSeeder extends Seeder
                 'category_group_id' => 6,
             ],
             40 => [
+                'id'                => 61,
+                'is_published'      => 1,
+                'name'              => '15-30 min',
+                'description'       => 'Voorbereidingstijd tussen de 15 en 30 minuten',
+                'category_group_id' => 6,
+            ],
+            41 => [
                 'id'                => 41,
                 'is_published'      => 1,
                 'name'              => '30 min - uur',
                 'description'       => 'Voorbereidingstijd van 30 minuten tot een uur',
                 'category_group_id' => 6,
             ],
-            41 => [
+            42 => [
                 'id'                => 42,
                 'is_published'      => 1,
                 'name'              => '1-2 uur',
                 'description'       => 'Voorbereidingstijd van één tot twee uur',
                 'category_group_id' => 6,
             ],
-            42 => [
+            43 => [
                 'id'                => 43,
                 'is_published'      => 1,
                 'name'              => '2-3 uur',
                 'description'       => 'Voorbereidingstijd van twee tot drie uur',
                 'category_group_id' => 6,
             ],
-            43 => [
+            44 => [
                 'id'                => 44,
                 'is_published'      => 1,
                 'name'              => 'Halve dag',
                 'description'       => 'Voorbereidingstijd van een halve dag',
                 'category_group_id' => 6,
             ],
-            44 => [
+            45 => [
                 'id'                => 45,
                 'is_published'      => 1,
                 'name'              => 'Hele dag',
                 'description'       => 'Voorbereidingstijd van een hele dag',
                 'category_group_id' => 6,
             ],
-            45 => [
+            46 => [
                 'id'                => 46,
                 'is_published'      => 1,
                 'name'              => 'Samenwerken en Verbinden',
                 'description'       => 'Activiteiten gericht op teamwork en het versterken van onderlinge banden',
                 'category_group_id' => 7,
             ],
-            46 => [
+            47 => [
                 'id'                => 47,
                 'is_published'      => 1,
                 'name'              => 'Open en Divers',
                 'description'       => 'Activiteiten gericht op inclusiviteit en diversiteit',
                 'category_group_id' => 7,
             ],
-            47 => [
+            48 => [
                 'id'                => 48,
                 'is_published'      => 1,
                 'name'              => 'Ontwikkeling en Uitdaging',
                 'description'       => 'Activiteiten gericht op persoonlijke groei en het aangaan van uitdagingen',
                 'category_group_id' => 7,
             ],
-            48 => [
+            49 => [
                 'id'                => 49,
                 'is_published'      => 1,
                 'name'              => 'Vrijwilligers',
                 'description'       => 'Activiteiten gericht op het ondersteunen en waarderen van vrijwilligers',
                 'category_group_id' => 7,
             ],
-            49 => [
+            50 => [
                 'id'                => 50,
                 'is_published'      => 1,
                 'name'              => 'Trots en Zichtbaar',
                 'description'       => 'Activiteiten die scouting positief onder de aandacht brengen',
                 'category_group_id' => 7,
             ],
-            50 => [
+            51 => [
                 'id'                => 51,
                 'is_published'      => 1,
                 'name'              => 'CWO Buitenboordmotor',
                 'description'       => 'Kwalificatie voor het varen met een buitenboordmotor volgens CWO-richtlijnen',
                 'category_group_id' => 8,
             ],
-            51 => [
+            52 => [
                 'id'                => 52,
                 'is_published'      => 1,
                 'name'              => 'CWO Kielboot',
                 'description'       => 'Kwalificatie voor het zeilen met een kielboot volgens CWO-richtlijnen',
                 'category_group_id' => 8,
             ],
-            52 => [
+            53 => [
                 'id'                => 53,
                 'is_published'      => 1,
                 'name'              => 'CWO Sloep/Motorvlet',
                 'description'       => 'Kwalificatie voor het varen met een sloep of motorvlet volgens CWO-richtlijnen',
                 'category_group_id' => 8,
             ],
-            53 => [
+            54 => [
                 'id'                => 54,
                 'is_published'      => 1,
                 'name'              => 'CWO Roeiboot',
                 'description'       => 'Kwalificatie voor het varen met een roeiboot volgens CWO-richtlijnen',
                 'category_group_id' => 8,
             ],
-            54 => [
+            55 => [
                 'id'                => 55,
                 'is_published'      => 1,
                 'name'              => 'Development Award',
                 'description'       => 'Een award waarmee je meer ontdekt over jezelf, de groep (subgroep of hele speltak) en de wereld om je heen (de maatschappij)',
                 'category_group_id' => 9,
             ],
-            55 => [
+            56 => [
                 'id'                => 56,
                 'is_published'      => 1,
                 'name'              => 'Nature Award',
                 'description'       => 'Een award die binnen het activiteitengebied Buitenleven valt. Het is een combinatie van twee bestaande programma’s van de internationale Scoutingorganisaties WAGGGS en WOSM: de Biodiversity challenge badge en het World Scout Environment Programme',
                 'category_group_id' => 9,
             ],
-            56 => [
+            57 => [
                 'id'                => 57,
                 'is_published'      => 1,
                 'name'              => '1 Nacht',
                 'description'       => 'Kampen die één dag en één nacht duren',
                 'category_group_id' => 10,
             ],
-            57 => [
+            58 => [
                 'id'                => 58,
                 'is_published'      => 1,
                 'name'              => 'Weekend',
                 'description'       => 'Kampen die een weekend (2-3 dagen) duren',
                 'category_group_id' => 10,
             ],
-            58 => [
+            59 => [
                 'id'                => 59,
                 'is_published'      => 1,
                 'name'              => 'Midweek',
                 'description'       => 'Kampen die een midweek (4-5 dagen) duren',
                 'category_group_id' => 10,
             ],
-            59 => [
+            60 => [
                 'id'                => 60,
                 'is_published'      => 1,
                 'name'              => 'Week',
