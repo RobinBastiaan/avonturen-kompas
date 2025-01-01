@@ -83,14 +83,14 @@ class ProcessHistoricalHitsCommand extends Command
     }
 
     // For each date a corresponding array is required.
-    const array DATES = [
+    protected const DATES = [
         '2019-04-01',
         '2020-04-01',
         '2021-04-01',
         '2023-11-01',
     ];
 
-    const array HISTORICAL_HITS_2019_04_01 = [
+    protected const HISTORICAL_HITS_2019_04_01 = [
         1    => 3730,
         2    => 2283,
         3    => 872,
@@ -1856,7 +1856,7 @@ class ProcessHistoricalHitsCommand extends Command
         7504 => 1,
     ];
 
-    const array HISTORICAL_HITS_2020_04_01 = [
+    protected const HISTORICAL_HITS_2020_04_01 = [
         1    => 4481,
         2    => 3146,
         3    => 1239,
@@ -4127,7 +4127,7 @@ class ProcessHistoricalHitsCommand extends Command
         9442 => 14,
     ];
 
-    const array HISTORICAL_HITS_2021_04_01 = [
+    protected const HISTORICAL_HITS_2021_04_01 = [
         1     => 5290,
         2     => 3950,
         3     => 1706,
@@ -6892,7 +6892,7 @@ class ProcessHistoricalHitsCommand extends Command
         11656 => 16,
     ];
 
-    const array HISTORICAL_HITS_2023_11_01 = [
+    protected const HISTORICAL_HITS_2023_11_01 = [
         1     => 6985,
         2     => 6711,
         3     => 2577,

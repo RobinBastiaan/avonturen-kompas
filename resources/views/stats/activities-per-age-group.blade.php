@@ -11,26 +11,36 @@
                     <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
                         Activiteitengebied
                     </th>
-                    @foreach($stats->first() as $ageGroup => $count)
-                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                            {{ preg_replace('/^\d+-\d+\s/', '', $ageGroup) }}
-                        </th>
-                    @endforeach
+                    @if($stats->isNotEmpty())
+                        @foreach($stats->first() as $ageGroup => $count)
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                {{ preg_replace('/^\d+-\d+\s/', '', $ageGroup) }}
+                            </th>
+                        @endforeach
+                    @endif
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                @foreach($stats as $activityArea => $ageGroups)
-                    <tr>
-                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 text-center">
-                            {{ $activityArea }}
-                        </td>
-                        @foreach($stats->first() as $ageGroup => $count)
-                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">
-                                {{ $ageGroups[$ageGroup] ?? 0 }}
+                @if($stats->isNotEmpty())
+                    @foreach($stats as $activityArea => $ageGroups)
+                        <tr>
+                            <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 text-center">
+                                {{ $activityArea }}
                             </td>
-                        @endforeach
+                            @foreach($stats->first() as $ageGroup => $count)
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">
+                                    {{ $ageGroups[$ageGroup] ?? 0 }}
+                                </td>
+                            @endforeach
+                        </tr>
+                    @endforeach
+                @else
+                    <tr>
+                        <td colspan="2" class="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-500 text-center">
+                            Geen statistieken beschikbaar
+                        </td>
                     </tr>
-                @endforeach
+                @endif
                 </tbody>
             </table>
         </div>

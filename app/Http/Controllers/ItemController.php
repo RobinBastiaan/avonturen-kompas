@@ -9,7 +9,7 @@ use Illuminate\View\View;
 
 class ItemController extends Controller
 {
-    const int NUMBER_OF_ITEMS_BY_TAG = 5;
+    protected const NUMBER_OF_ITEMS_BY_TAG = 5;
 
     /**
      * Handle the incoming request.

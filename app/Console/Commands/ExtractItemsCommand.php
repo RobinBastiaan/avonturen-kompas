@@ -10,7 +10,7 @@ class ExtractItemsCommand extends Command
     // The last item is dynamic and not known. When an original item is either removed or unpublished, it is skipped and logged a failure.
     // Therefore, to stop extracting when there are no items left, there is a max consecutive failures. Note there exists known gaps of
     // hundreds consecutive items missing, but soms of them are gracefully skipped.
-    const int MAX_CONSECUTIVE_FAILURES = 99;
+    protected const MAX_CONSECUTIVE_FAILURES = 99;
     protected $signature = 'app:extract:items {id? : Item ID to start extracting from}';
     protected $description = 'Extract all published items data from the Activiteitenbank.';
 
@@ -56,7 +56,7 @@ class ExtractItemsCommand extends Command
         return in_array($currentId, self::CONFIRMED_MISSING, true);
     }
 
-    const array CONFIRMED_MISSING = [13, 15, 26, 35, 93, 99, 100, 102, 103, 120, 164, 167, 168, 191, 196, 197, 198, 199, 200, 201, 202, 203,
+    protected const CONFIRMED_MISSING = [13, 15, 26, 35, 93, 99, 100, 102, 103, 120, 164, 167, 168, 191, 196, 197, 198, 199, 200, 201, 202, 203,
         204, 205, 206, 358, 400, 406, 452, 453, 454, 455, 457, 464, 474, 475, 518, 519, 527, 543, 561, 631, 638, 646, 657, 682, 778, 782,
         799, 817, 859, 887, 929, 932, 933, 939, 1006, 1227, 1236, 1252, 1253, 1254, 1255, 1256, 1257, 1258, 1259, 1260, 1261, 1262, 1263,
         1264, 1265, 1266, 1267, 1268, 1269, 1270, 1271, 1272, 1273, 1274, 1275, 1276, 1277, 1278, 1279, 1280, 1281, 1282, 1283, 1284, 1285,
