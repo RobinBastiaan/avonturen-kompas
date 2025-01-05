@@ -4,6 +4,7 @@ namespace App\Models\Relations;
 
 use App\Models\AtScout;
 use App\Models\Item;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
@@ -69,5 +70,21 @@ class AtScoutRelation extends Relation
     public function getResults(): Collection
     {
         return $this->query->get();
+    }
+
+    /**
+     * Add the constraints for a relationship query.
+     */
+    public function getRelationExistenceQuery(Builder $query, Builder $parentQuery, $columns = ['*']): Builder
+    {
+        return $query->select($columns)
+            ->where(function ($query) {
+                $query->whereColumn('bevers_item_id', $this->parent->getQualifiedKeyName())
+                    ->orWhereColumn('welpen_item_id', $this->parent->getQualifiedKeyName())
+                    ->orWhereColumn('scouts_item_id', $this->parent->getQualifiedKeyName())
+                    ->orWhereColumn('explorers_item_id', $this->parent->getQualifiedKeyName())
+                    ->orWhereColumn('roverscouts_item_id', $this->parent->getQualifiedKeyName())
+                    ->orWhereColumn('extra_item_id', $this->parent->getQualifiedKeyName());
+            });
     }
 }
