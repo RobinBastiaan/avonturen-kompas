@@ -69,5 +69,23 @@
         @if($item->comments->isNotEmpty())
             @include('partials.item.comments', ['comments' => $item->comments])
         @endif
+
+        {{-- @-scout publications --}}
+        @if($item->atScouts->isNotEmpty())
+            <div class="mt-6">
+                <h2 class="text-xl font-semibold">Gezien in @-scout</h2>
+                <div class="space-y-2 mt-2">
+                    @foreach($item->atScouts as $atScout)
+                        <div class="flex items-center gap-2">
+                            <time datetime="{{ $atScout->published_at->format('Y-m-d') }}" class="text-gray-600">
+                                {{ $atScout->published_at->format('d M Y') }}
+                            </time>
+                            <span class="text-gray-600">•</span>
+                            <span>{{ $atScout->name }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
     </article>
 @endsection

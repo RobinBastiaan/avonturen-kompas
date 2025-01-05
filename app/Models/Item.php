@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Relations\AtScoutRelation;
 use App\Models\Scopes\PublishedScope;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
@@ -136,5 +137,10 @@ class Item extends Model
     public function historicalHits(): HasMany
     {
         return $this->hasMany(Hits::class);
+    }
+
+    public function atScouts(): AtScoutRelation
+    {
+        return new AtScoutRelation($this);
     }
 }

@@ -45,6 +45,7 @@ class ItemController extends Controller
         // TODO Cache this query.
         $item = Item::query()
             ->with(['createdBy' => fn($query) => $query->select('id', 'name')])
+            ->with(['atScouts' => fn($query) => $query->orderBy('published_at', 'desc')])
             ->with(['camps' => function ($query) {
                 $query->select('title', 'slug', 'hash', 'summary');
             }])
