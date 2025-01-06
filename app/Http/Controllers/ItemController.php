@@ -12,7 +12,7 @@ class ItemController extends Controller
     protected const NUMBER_OF_ITEMS_BY_TAG = 5;
 
     /**
-     * Handle the incoming request.
+     * View an Item.
      */
     public function __invoke(string $hash, ?string $slug = null): View|RedirectResponse
     {

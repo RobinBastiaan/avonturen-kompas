@@ -26,6 +26,7 @@ class CategoryGroupsWithCategoriesTableSeeder extends Seeder
                 'description'                 => 'De leeftijdscategorie (ookwel speltak genoemd) waarvoor de activiteit geschikt is',
                 'is_available_for_activities' => 1,
                 'is_available_for_camps'      => 1,
+                'is_required'                 => 1,
             ],
             1 => [
                 'id'                          => 2,
@@ -34,6 +35,7 @@ class CategoryGroupsWithCategoriesTableSeeder extends Seeder
                 'description'                 => 'Indeling van acht gebieden om activiteiten die qua onderwerp bij elkaar horen onder te verdelen voor een gevarieerd programma',
                 'is_available_for_activities' => 1,
                 'is_available_for_camps'      => 1,
+                'is_required'                 => 1,
             ],
             2 => [
                 'id'                          => 3,
@@ -42,6 +44,7 @@ class CategoryGroupsWithCategoriesTableSeeder extends Seeder
                 'description'                 => 'De plek waar de activiteit kan worden uitgevoerd',
                 'is_available_for_activities' => 1,
                 'is_available_for_camps'      => 1,
+                'is_required'                 => 1,
             ],
             3 => [
                 'id'                          => 4,
@@ -50,6 +53,7 @@ class CategoryGroupsWithCategoriesTableSeeder extends Seeder
                 'description'                 => 'De geschatte tijdsduur van een activiteit',
                 'is_available_for_activities' => 1,
                 'is_available_for_camps'      => 0,
+                'is_required'                 => 1,
             ],
             4 => [
                 'id'                          => 5,
@@ -58,6 +62,7 @@ class CategoryGroupsWithCategoriesTableSeeder extends Seeder
                 'description'                 => 'Het aantal deelnemers waarvoor de activiteit geschikt is',
                 'is_available_for_activities' => 1,
                 'is_available_for_camps'      => 1,
+                'is_required'                 => 1,
             ],
             5 => [
                 'id'                          => 6,
@@ -66,6 +71,7 @@ class CategoryGroupsWithCategoriesTableSeeder extends Seeder
                 'description'                 => 'De tijd die nodig is om de activiteit voor te bereiden',
                 'is_available_for_activities' => 1,
                 'is_available_for_camps'      => 1,
+                'is_required'                 => 1,
             ],
             6 => [
                 'id'                          => 7,
@@ -74,6 +80,7 @@ class CategoryGroupsWithCategoriesTableSeeder extends Seeder
                 'description'                 => 'De vijf toekomstthema\'s in de toekomstvisie t/m 2025',
                 'is_available_for_activities' => 1,
                 'is_available_for_camps'      => 1,
+                'is_required'                 => 0,
             ],
             7 => [
                 'id'                          => 8,
@@ -82,6 +89,7 @@ class CategoryGroupsWithCategoriesTableSeeder extends Seeder
                 'description'                 => 'Activiteiten ter voorbereiding voor officiële kwalificaties',
                 'is_available_for_activities' => 1,
                 'is_available_for_camps'      => 1,
+                'is_required'                 => 0,
             ],
             8 => [
                 'id'                          => 9,
@@ -90,6 +98,7 @@ class CategoryGroupsWithCategoriesTableSeeder extends Seeder
                 'description'                 => 'Pluspakket naast de normale insignes en badges voor scouts, explorers en roverscouts die meer willen doen, zien en ervaren',
                 'is_available_for_activities' => 1,
                 'is_available_for_camps'      => 1,
+                'is_required'                 => 0,
             ],
             9 => [
                 'id'                          => 10,
@@ -98,6 +107,7 @@ class CategoryGroupsWithCategoriesTableSeeder extends Seeder
                 'description'                 => 'De lengte van het kamp in dagen of nachten',
                 'is_available_for_activities' => 0,
                 'is_available_for_camps'      => 1,
+                'is_required'                 => 1,
             ],
         ]);
 

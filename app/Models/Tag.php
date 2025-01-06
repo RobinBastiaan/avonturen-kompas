@@ -15,6 +15,7 @@ use Illuminate\Support\Collection;
  * Class Tag.
  *
  * Tags provide a way to group items with similar content together to be able to find related items.
+ * A tag should be a topic or activity type that we want to promote and that fits scouting, and should have items for every age group.
  * For example: 'Scout Scarf Day', 'Sinterklaas' and 'JOTA-JOTI'.
  *
  * @property int               $id

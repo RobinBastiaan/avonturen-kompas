@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
 /**
  * Class Category.
  *
- * Categories are a way to indicate properties of an item. They are nested in a category group and have an image.
+ * Categories are a way to indicate the nature of an item. They are nested in a category group and have an image.
  * For example: 'Welpen' as a 'Leeftijdsgroep', and 'Buitenleven' as an 'Activiteitengebied'.
  *
  * @property int               $id

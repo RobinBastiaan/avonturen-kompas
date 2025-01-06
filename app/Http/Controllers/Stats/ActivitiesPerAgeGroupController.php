@@ -11,7 +11,7 @@ use Illuminate\View\View;
 class ActivitiesPerAgeGroupController extends Controller
 {
     /**
-     * Handle the incoming request.
+     * Give the amount of Items grouped by age group and activity area.
      */
     public function __invoke(): View
     {

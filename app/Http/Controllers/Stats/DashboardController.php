@@ -9,7 +9,7 @@ use Illuminate\View\View;
 class DashboardController extends Controller
 {
     /**
-     * Handle the incoming request.
+     * Give a dashboard containing some short interesting statistics.
      */
     public function __invoke(): View
     {

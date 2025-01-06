@@ -24,6 +24,7 @@ use Illuminate\Support\Collection;
  * @property string|null           $description
  * @property boolean               $is_available_for_activities
  * @property boolean               $is_available_for_camps
+ * @property boolean               $is_required // If items should have at least one category of this category group.
  * @property int                   $use_count // Sum of related categories use_count.
  *
  * @property Carbon|null           $created_at
@@ -46,12 +47,14 @@ class CategoryGroup extends Model
         'description',
         'is_available_for_activities',
         'is_available_for_camps',
+        'is_required',
     ];
 
     protected $casts = [
         'is_published' => 'boolean',
         'is_available_for_activities' => 'boolean',
         'is_available_for_camps' => 'boolean',
+        'is_required' => 'boolean',
     ];
 
 
