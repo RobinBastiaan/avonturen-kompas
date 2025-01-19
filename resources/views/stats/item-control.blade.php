@@ -4,6 +4,46 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 class="text-3xl font-bold mb-8">Item Control</h1>
 
+        {{-- Items Too Short --}}
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-4">Items met te weinig worden (minder dan {{ $minItemWords }} woorden) ({{ $itemsTooShort->count() }} items)</h2>
+            @if($itemsTooShort->isNotEmpty())
+                <ul class="list-disc pl-5">
+                    @foreach($itemsTooShort as $item)
+                        <li>
+                            <a href="{{ route('item', ['hash' => $item->hash, 'slug' => $item->slug]) }}" class="text-blue-600 hover:underline">
+                                {{ $item->title }} ({{ $item->word_count }} woorden)
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <p class="text-gray-600">Er zijn geen items met te weinig woorden.</p>
+            @endif
+        </section>
+
+        <hr>
+
+        {{-- Items Too Long --}}
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-4">Items met te veel worden (meer dan {{ $maxItemWords }} woorden) ({{ $itemsTooLong->count() }} items)</h2>
+            @if($itemsTooLong->isNotEmpty())
+                <ul class="list-disc pl-5">
+                    @foreach($itemsTooLong as $item)
+                        <li>
+                            <a href="{{ route('item', ['hash' => $item->hash, 'slug' => $item->slug]) }}" class="text-blue-600 hover:underline">
+                                {{ $item->title }} ({{ $item->word_count }} woorden)
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <p class="text-gray-600">Er zijn geen items met te weinig woorden.</p>
+            @endif
+        </section>
+
+        <hr>
+
         {{-- Items Missing Required Categories --}}
         <section class="mb-12">
             <h2 class="text-2xl font-bold mb-4">Items met missende categorieën</h2>
@@ -22,7 +62,7 @@
                     </ul>
                 </div>
             @empty
-                <p class="text-gray-600">Er zijn geen items waarin de vereiste categorieën ontbreken</p>
+                <p class="text-gray-600">Er zijn geen items waarin de vereiste categorieën ontbreken.</p>
             @endforelse
         </section>
 
@@ -42,7 +82,7 @@
                     @endforeach
                 </ul>
             @else
-                <p class="text-gray-600">Er zijn geen kampen zonder gekoppelde activiteiten</p>
+                <p class="text-gray-600">Er zijn geen kampen zonder gekoppelde activiteiten.</p>
             @endif
         </section>
 
@@ -62,7 +102,7 @@
                         @endforeach
                     </ul>
                 @else
-                    <p class="text-gray-600">Geen tags met missende leeftijdsgroepen</p>
+                    <p class="text-gray-600">Geen tags met missende leeftijdsgroepen.</p>
                 @endif
             </div>
 
@@ -76,7 +116,7 @@
                         @endforeach
                     </ul>
                 @else
-                    <p class="text-gray-600">Geen tags met hoge overlap</p>
+                    <p class="text-gray-600">Geen tags met hoge overlap.</p>
                 @endif
             </div>
         </section>

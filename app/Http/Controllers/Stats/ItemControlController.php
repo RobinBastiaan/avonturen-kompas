@@ -10,6 +10,8 @@ use Illuminate\View\View;
 
 class ItemControlController extends Controller
 {
+    protected const MIN_ITEM_WORDS = 100;
+    protected const MAX_ITEM_WORDS = 5000;
     protected const MAX_TAG_OVERLAP_PERCENTAGE = 90;
 
     /**
@@ -20,17 +22,39 @@ class ItemControlController extends Controller
      */
     public function __invoke(): View
     {
+        $itemsTooShort = $this->itemsTooShort();
+        $itemsTooLong = $this->itemsTooLong();
         $itemsMissingCategories = $this->itemsMissingCategories();
         $campsWithoutActivities = $this->campsWithoutActivities();
         $tagsMissingAgeGroups = $this->tagsMissingAgeGroups();
         $tagsHighOverlap = $this->tagsHighOverlap();
 
         return view('stats.item-control', [
+            'minItemWords'           => self::MIN_ITEM_WORDS,
+            'itemsTooShort'          => $itemsTooShort,
+            'maxItemWords'           => self::MAX_ITEM_WORDS,
+            'itemsTooLong'           => $itemsTooLong,
             'itemsMissingCategories' => $itemsMissingCategories,
             'campsWithoutActivities' => $campsWithoutActivities,
             'tagsMissingAgeGroups'   => $tagsMissingAgeGroups,
             'tagsHighOverlap'        => $tagsHighOverlap,
         ]);
+    }
+
+    protected function itemsTooShort(): Collection
+    {
+        return Item::query()
+            ->where('word_count', '<', self::MIN_ITEM_WORDS)
+            ->orderBy('word_count')
+            ->get();
+    }
+
+    protected function itemsTooLong(): Collection
+    {
+        return Item::query()
+            ->where('word_count', '>', self::MAX_ITEM_WORDS)
+            ->orderByDesc('word_count')
+            ->get();
     }
 
     /**

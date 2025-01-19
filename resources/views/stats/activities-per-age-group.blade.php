@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('main')
-    <h1 class="text-3xl font-bold">Totaal activiteiten</h1>
+    <h1 class="text-3xl font-bold">Activiteiten per leeftijdgroep</h1>
 
     <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="inline-block min-w-full py-2 align-middle">

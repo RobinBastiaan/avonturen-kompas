@@ -14,9 +14,9 @@ Route::get('/', function () {
 Route::get('/item/{hash}/{slug?}', ItemController::class)->name('item');
 
 Route::prefix('stats')->name('stats.')->group(function () {
-    Route::get('/tag/export', [TagController::class, 'export'])->name('tag.export');
-
-    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/', DashboardController::class)->name('dashboard');
     Route::get('/activities-per-age-group', ActivitiesPerAgeGroupController::class)->name('activities-per-age-group');
     Route::get('/item-control', ItemControlController::class)->name('item-control');
+
+    Route::get('/tag/export', [TagController::class, 'export'])->name('tag.export');
 });

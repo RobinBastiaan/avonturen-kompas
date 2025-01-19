@@ -30,7 +30,10 @@ use Illuminate\Support\Collection;
  * @property string|null                $requirements
  * @property string|null                $tips
  * @property string|null                $safety
+ *
+ * // Aggregated data for performance.
  * @property int                        $hits // Current hits. Use Hits relationship for historical context.
+ * @property int                        $word_count
  *
  * @property Carbon|null                $created_at
  * @property Carbon|null                $updated_at

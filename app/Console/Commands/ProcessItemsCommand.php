@@ -58,8 +58,9 @@ class ProcessItemsCommand extends Command
 
         $progressBar->finish();
 
-        // Recalculate use count of categories and tags.
+        // Recalculate counts.
         $this->recalculateUseCounts();
+        $this->recalculateWordCounts();
 
         $totalTime = ceil(now()->diffInSeconds($startTime, true));
         $this->newLine();
@@ -470,5 +471,21 @@ class ProcessItemsCommand extends Command
         ');
 
         $this->info('Use counts updated successfully.');
+    }
+
+    /**
+     * Count the words in all content columns to represent the amount of words displayed for the record.
+     */
+    protected function recalculateWordCounts(): void
+    {
+        DB::table('items')
+            ->update([
+                'word_count' => DB::raw("
+                    (CASE WHEN LENGTH(COALESCE(description, '')) > 0 THEN LENGTH(COALESCE(description, '')) - LENGTH(REPLACE(COALESCE(description, ''), ' ', '')) + 1 ELSE 0 END) +
+                    (CASE WHEN LENGTH(COALESCE(requirements, '')) > 0 THEN LENGTH(COALESCE(requirements, '')) - LENGTH(REPLACE(COALESCE(requirements, ''), ' ', '')) + 1 ELSE 0 END) +
+                    (CASE WHEN LENGTH(COALESCE(safety, '')) > 0 THEN LENGTH(COALESCE(safety, '')) - LENGTH(REPLACE(COALESCE(safety, ''), ' ', '')) + 1 ELSE 0 END) +
+                    (CASE WHEN LENGTH(COALESCE(tips, '')) > 0 THEN LENGTH(COALESCE(tips, '')) - LENGTH(REPLACE(COALESCE(tips, ''), ' ', '')) + 1 ELSE 0 END)
+                ")
+            ]);
     }
 }
