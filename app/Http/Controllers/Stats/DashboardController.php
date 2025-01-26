@@ -19,6 +19,34 @@ class DashboardController extends Controller
             ->orderByDesc('hits')
             ->first();
 
-        return view('stats.dashboard', compact('mostPopulairAtScoutItem'));
+        $mostFavoriteItem = Item::query()
+            ->withCount('favoritedBy')
+            ->orderByDesc('favorited_by_count')
+            ->first();
+
+        $mostRecentEditedItem = Item::query()
+            ->orderByDesc('updated_at')
+            ->first();
+
+        $taggedItems = Item::query()->whereHas('tags')->count();
+        $totalItems = Item::query()->count();
+        $percentageTagged = $taggedItems / $totalItems * 100;
+
+        $randomStaleItems = Item::query()
+            ->select('id', 'title', 'slug', 'hash')
+            ->where('created_at' , '<', now()->subYears(5))
+            ->inRandomOrder()
+            ->limit(3)
+            ->get();
+
+        return view('stats.dashboard', compact(
+            'mostPopulairAtScoutItem',
+            'mostFavoriteItem',
+            'mostRecentEditedItem',
+            'taggedItems',
+            'totalItems',
+            'percentageTagged',
+            'randomStaleItems',
+        ));
     }
 }

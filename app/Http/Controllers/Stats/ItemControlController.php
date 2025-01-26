@@ -11,7 +11,7 @@ use Illuminate\View\View;
 class ItemControlController extends Controller
 {
     protected const MIN_ITEM_WORDS = 100;
-    protected const MAX_ITEM_WORDS = 5000;
+    protected const MAX_ITEM_WORDS = 3000;
     protected const MAX_TAG_OVERLAP_PERCENTAGE = 90;
 
     /**
