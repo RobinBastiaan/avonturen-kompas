@@ -36,6 +36,10 @@ return new class extends Migration
 
             $table->index('slug');
             $table->index('hash');
+
+            // Set the charset and collation.
+            $table->charset = 'utf8mb4';
+            $table->collation = 'utf8mb4_unicode_ci';
         });
     }
 

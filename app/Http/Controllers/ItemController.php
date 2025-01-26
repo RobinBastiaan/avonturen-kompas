@@ -18,7 +18,7 @@ class ItemController extends Controller
     {
         // When no slug is given, redirect to a URL with that slug for readability and SEO.
         if ($slug === null) {
-            $item = Item::query()->select('slug')->where('hash', $hash)->first();
+            $item = Item::query()->select('slug', 'hash')->where('hash', $hash)->first();
 
             // If slug remains null, maybe only the slug was given. Try to find an exact match on the slug instead.
             if ($item === null) {

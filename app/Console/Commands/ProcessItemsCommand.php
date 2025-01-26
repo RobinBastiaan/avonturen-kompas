@@ -60,7 +60,6 @@ class ProcessItemsCommand extends Command
 
         // Recalculate counts.
         $this->recalculateUseCounts();
-        $this->recalculateWordCounts();
 
         $totalTime = ceil(now()->diffInSeconds($startTime, true));
         $this->newLine();
@@ -96,6 +95,7 @@ class ProcessItemsCommand extends Command
         $item->tips = $this->extractTips($extractedItem->raw_content);
         $item->safety = $this->extractSafety($extractedItem->raw_content);
         $item->hits = $extractedItem->hits;
+        $item->word_count = $this->calculateWordCounts($item);
         $item->created_by = $extractedItem->author_name ? $this->extractCreatedBy($extractedItem->author_name)->id : null;
         // Note: updated_by is not given in the extracted item, so we leave it null.
         $item->created_at = $extractedItem->published_at;
@@ -135,6 +135,21 @@ class ProcessItemsCommand extends Command
         }
 
         return null;
+    }
+
+    /**
+     * Count the words in all content columns to represent the amount of words displayed for the record.
+     */
+    protected function calculateWordCounts(Item $item): int
+    {
+        $content = implode(' ', array_filter([
+            $item->description,
+            $item->requirements,
+            $item->tips,
+            $item->safety,
+        ]));
+
+        return str_word_count(strip_tags($content));
     }
 
     /**
@@ -192,7 +207,7 @@ class ProcessItemsCommand extends Command
 
     protected function extractSummary(string $content): string
     {
-        if (preg_match('/<h2>Waarom \/ doel van de activiteit<\/h2>\s*(.*?)(?=<h2>)/s', $content, $matches)) {
+        if (preg_match('/<h2>(?:Waarom \/ doel van de activiteit|Korte omschrijving)<\/h2>\s*(.*?)(?=<h2>)/s', $content, $matches)) {
             return trim(strip_tags($matches[1]));
         }
 
@@ -201,8 +216,8 @@ class ProcessItemsCommand extends Command
 
     protected function extractDescription(string $content): string
     {
-        if (preg_match('/<h2>Beschrijving van de activiteit<\/h2>(.*?)(?=<h2>)/s', $content, $matches)) {
-            return trim($matches[1]);
+        if (preg_match('/<h2>(?:Beschrijving van de activiteit|Themaverhaal)<\/h2>(.*?)(?=<h2>|<!-- Item Hits -->|<div class="clr">)/s', $content, $matches)) {
+            return $this->sanitize($matches[1]);
         }
 
         return '';
@@ -210,8 +225,8 @@ class ProcessItemsCommand extends Command
 
     protected function extractRequirements(string $content): ?string
     {
-        if (preg_match('/<h2>Benodigd materiaal<\/h2>(.*?)(?=<h2>)/s', $content, $matches)) {
-            return trim($matches[1]);
+        if (preg_match('/<h2>(?:Benodigd materiaal|Globale planning)<\/h2>(.*?)(?=<h2>|<!-- Item Hits -->|<div class="clr">)/s', $content, $matches)) {
+            return $this->sanitize($matches[1]);
         }
 
         return null;
@@ -219,8 +234,8 @@ class ProcessItemsCommand extends Command
 
     protected function extractTips(string $content): ?string
     {
-        if (preg_match('/<h2>Tips<\/h2>(.*?)(?=<div class="clr">|<h2>)/s', $content, $matches)) {
-            return trim($matches[1]);
+        if (preg_match('/<h2>Tips<\/h2>(.*?)(?=<h2>|<!-- Item Hits -->|<div class="clr">)/s', $content, $matches)) {
+            return $this->sanitize($matches[1]);
         }
 
         return null;
@@ -228,8 +243,8 @@ class ProcessItemsCommand extends Command
 
     protected function extractSafety(string $content): ?string
     {
-        if (preg_match('/<h2>Veiligheid<\/h2>(.*?)(?=<h2>)/s', $content, $matches)) {
-            return trim($matches[1]);
+        if (preg_match('/<h2>Veiligheid<\/h2>(.*?)(?=<h2>|<!-- Item Hits -->|<div class="clr">)/s', $content, $matches)) {
+            return $this->sanitize($matches[1]);
         }
 
         return null;
@@ -473,19 +488,38 @@ class ProcessItemsCommand extends Command
         $this->info('Use counts updated successfully.');
     }
 
-    /**
-     * Count the words in all content columns to represent the amount of words displayed for the record.
-     */
-    protected function recalculateWordCounts(): void
+    protected function sanitize($matches): ?string
     {
-        DB::table('items')
-            ->update([
-                'word_count' => DB::raw("
-                    (CASE WHEN LENGTH(COALESCE(description, '')) > 0 THEN LENGTH(COALESCE(description, '')) - LENGTH(REPLACE(COALESCE(description, ''), ' ', '')) + 1 ELSE 0 END) +
-                    (CASE WHEN LENGTH(COALESCE(requirements, '')) > 0 THEN LENGTH(COALESCE(requirements, '')) - LENGTH(REPLACE(COALESCE(requirements, ''), ' ', '')) + 1 ELSE 0 END) +
-                    (CASE WHEN LENGTH(COALESCE(safety, '')) > 0 THEN LENGTH(COALESCE(safety, '')) - LENGTH(REPLACE(COALESCE(safety, ''), ' ', '')) + 1 ELSE 0 END) +
-                    (CASE WHEN LENGTH(COALESCE(tips, '')) > 0 THEN LENGTH(COALESCE(tips, '')) - LENGTH(REPLACE(COALESCE(tips, ''), ' ', '')) + 1 ELSE 0 END)
-                ")
-            ]);
+        $cleaned = mb_convert_encoding($matches, 'UTF-8', 'UTF-8');
+
+        // Replace all types of NBSPs with regular spaces.
+        $cleaned = str_replace(["\xC2\xA0", "\xA0", "&nbsp;", " "], ' ', $cleaned);
+
+        // Strip all HTML attributes except href on anchor tags.
+        $cleaned = preg_replace_callback(
+            '/<((?!a\b)[a-z][a-z0-9]*)[^>]*?(\/?)>|<a\b[^>]*href="([^"]*)"[^>]*>/i',
+            static function ($matches) {
+                if (!isset($matches[3])) {
+                    return '<' . $matches[1] . $matches[2] . '>';
+                }
+                return '<a href="' . $matches[3] . '">';
+            },
+            $cleaned
+        );
+
+        // Remove all div and span tags but keep their content.
+        $cleaned = preg_replace('/<\/?(?:div|span)>/', '', $cleaned);
+
+        // Replace horizontal whitespace (spaces, tabs) with a single space, but preserve line breaks.
+        $cleaned = preg_replace('/[^\S\r\n]+/', ' ', $cleaned);
+
+        // Replace multiple line breaks with a single one.
+        $cleaned = preg_replace('/\R{2,}/', "\n", $cleaned);
+
+        $cleaned = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', $cleaned);
+
+        $cleaned = \Normalizer::normalize($cleaned, \Normalizer::FORM_C);
+
+        return trim($cleaned);
     }
 }
