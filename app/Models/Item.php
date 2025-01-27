@@ -34,6 +34,7 @@ use Illuminate\Support\Collection;
  * // Aggregated data for performance.
  * @property int                        $hits // Current hits. Use Hits relationship for historical context.
  * @property int                        $word_count
+ * @property int                        $flesch_reading_ease // Score between 0 and 100 where higher is harder to read.
  *
  * @property Carbon|null                $created_at
  * @property Carbon|null                $updated_at

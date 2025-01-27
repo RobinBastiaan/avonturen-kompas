@@ -38,7 +38,28 @@
                     @endforeach
                 </ul>
             @else
-                <p class="text-gray-600">Er zijn geen items met te weinig woorden.</p>
+                <p class="text-gray-600">Er zijn geen items met te veel woorden.</p>
+            @endif
+        </section>
+
+        <hr>
+
+        {{-- Items Too Complex --}}
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-4">Activiteiten met te complexe tekst ({{ $itemsTooComplex->count() }} items)</h2>
+            <p>Gebruik kortere zinnen met simpelere woorden en voeg meer interpunctie toe om de leesbaarheid te vergroten.</p>
+            @if($itemsTooComplex->isNotEmpty())
+                <ul class="list-disc pl-5">
+                    @foreach($itemsTooComplex as $item)
+                        <li>
+                            <a href="{{ route('item', ['hash' => $item->hash, 'slug' => $item->slug]) }}" class="text-blue-600 hover:underline">
+                                {{ $item->title }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <p class="text-gray-600">Er zijn geen items met te complexe tekst.</p>
             @endif
         </section>
 

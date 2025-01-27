@@ -11,6 +11,7 @@ use App\Models\Item;
 use App\Models\Tag;
 use App\Models\User;
 use Carbon\Carbon;
+use DaveChild\TextStatistics\TextStatistics;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +22,15 @@ class ProcessItemsCommand extends Command
 {
     protected $signature = 'app:process:items';
     protected $description = 'Process not yet applied items, and create related entities if not yet present.';
+
+    protected TextStatistics $textStatistics;
+
+    public function __construct()
+    {
+        $this->textStatistics = new TextStatistics();
+
+        parent::__construct();
+    }
 
     public function handle(): int
     {
@@ -96,6 +106,7 @@ class ProcessItemsCommand extends Command
         $item->safety = $this->extractSafety($extractedItem->raw_content);
         $item->hits = $extractedItem->hits;
         $item->word_count = $this->calculateWordCounts($item);
+        $item->flesch_reading_ease = $this->calculateFleschReadingEase($item);
         $item->created_by = $extractedItem->author_name ? $this->extractCreatedBy($extractedItem->author_name)->id : null;
         // Note: updated_by is not given in the extracted item, so we leave it null.
         $item->created_at = $extractedItem->published_at;
@@ -150,6 +161,22 @@ class ProcessItemsCommand extends Command
         ]));
 
         return str_word_count(strip_tags($content));
+    }
+
+    protected function calculateFleschReadingEase(Item $item): int
+    {
+        $content = implode(' ', array_filter([
+            $item->description,
+            $item->requirements,
+            $item->tips,
+            $item->safety,
+        ]));
+
+        // Add dots after whitelisted HTML elements, so their content is counted as separate sentences.
+        $content = preg_replace('/\s*<\/(?:p|div|h[1-6]|li|br)>\s*/i', '. ', $content);
+        $content = strip_tags($content);
+
+        return $this->textStatistics->fleschKincaidReadingEase($content);
     }
 
     /**
@@ -507,6 +534,10 @@ class ProcessItemsCommand extends Command
             $cleaned
         );
 
+        // Remove empty HTML elements, including those with only whitespace.
+        $cleaned = preg_replace('/<([a-z][a-z0-9]*)[^>]*>\s*<\/\1>/i', '', $cleaned);
+        $cleaned = preg_replace('/<([a-z][a-z0-9]*)[^>]*>\s*(?:<\1[^>]*>\s*<\/\1>\s*)*<\/\1>/i', '', $cleaned);
+
         // Remove all div and span tags but keep their content.
         $cleaned = preg_replace('/<\/?(?:div|span)>/', '', $cleaned);
 
@@ -518,8 +549,8 @@ class ProcessItemsCommand extends Command
 
         $cleaned = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', $cleaned);
 
-        $cleaned = \Normalizer::normalize($cleaned, \Normalizer::FORM_C);
+        $cleaned = trim(\Normalizer::normalize($cleaned, \Normalizer::FORM_C));
 
-        return trim($cleaned);
+        return empty($cleaned) ? null : $cleaned;
     }
 }

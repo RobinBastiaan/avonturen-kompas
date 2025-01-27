@@ -28,6 +28,7 @@ return new class extends Migration
             // Aggregated data for performance.
             $table->unsignedInteger('hits')->default(0);
             $table->unsignedInteger('word_count')->default(0);
+            $table->unsignedInteger('flesch_reading_ease')->default(0);
 
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->foreignId('updated_by')->nullable()->constrained('users');

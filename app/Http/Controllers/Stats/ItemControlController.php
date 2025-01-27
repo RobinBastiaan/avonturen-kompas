@@ -24,6 +24,7 @@ class ItemControlController extends Controller
     {
         $itemsTooShort = $this->itemsTooShort();
         $itemsTooLong = $this->itemsTooLong();
+        $itemsTooComplex = $this->itemsTooComplex();
         $itemsMissingCategories = $this->itemsMissingCategories();
         $campsWithoutActivities = $this->campsWithoutActivities();
         $tagsMissingAgeGroups = $this->tagsMissingAgeGroups();
@@ -34,6 +35,7 @@ class ItemControlController extends Controller
             'itemsTooShort'          => $itemsTooShort,
             'maxItemWords'           => self::MAX_ITEM_WORDS,
             'itemsTooLong'           => $itemsTooLong,
+            'itemsTooComplex'        => $itemsTooComplex,
             'itemsMissingCategories' => $itemsMissingCategories,
             'campsWithoutActivities' => $campsWithoutActivities,
             'tagsMissingAgeGroups'   => $tagsMissingAgeGroups,
@@ -54,6 +56,15 @@ class ItemControlController extends Controller
         return Item::query()
             ->where('word_count', '>', self::MAX_ITEM_WORDS)
             ->orderByDesc('word_count')
+            ->get();
+    }
+
+    protected function itemsTooComplex(): Collection
+    {
+        return Item::query()
+            ->where('flesch_reading_ease', '<', '50')
+            ->where('word_count', '<', '50') // Remove some potential false positives.
+            ->orderBy('flesch_reading_ease')
             ->get();
     }
 
