@@ -94,13 +94,14 @@ class ProcessItemsCommand extends Command
             return $extractedItem;
         }
 
+        $item->original_id = $extractedItem->original_id;
         $item->is_published = true;
         $item->title = $this->extractTitle($extractedItem->raw_content);
         $item->slug = $extractedItem->original_slug;
         $item->is_camp = $isCamp;
         $item->camp_length = $this->extractCampLength($extractedItem->raw_content);
         $item->summary = $this->extractSummary($extractedItem->raw_content);
-        $item->description = $this->extractDescription($extractedItem->raw_content);
+        $item->description = $this->extractDescription($extractedItem->raw_content, $item->title);
         $item->requirements = $this->extractRequirements($extractedItem->raw_content);
         $item->tips = $this->extractTips($extractedItem->raw_content);
         $item->safety = $this->extractSafety($extractedItem->raw_content);
@@ -165,9 +166,9 @@ class ProcessItemsCommand extends Command
 
     protected function calculateFleschReadingEase(Item $item): int
     {
+        // Only fields that contain sentences are considered, so for example the requirements are omitted.
         $content = implode(' ', array_filter([
             $item->description,
-            $item->requirements,
             $item->tips,
             $item->safety,
         ]));
@@ -185,14 +186,12 @@ class ProcessItemsCommand extends Command
     protected function findOrCreateItem(ExtractedItem $extractedItem): Item
     {
         // Check if this item was not processed before.
-        $previousExtractItem = ExtractedItem::query()
-            ->withWhereHas('appliedTo')
-            ->where('id', '!=', $extractedItem->id)
+        $existingItem = Item::query()
             ->where('original_id', $extractedItem->original_id)
             ->first();
 
         // And if so, overwrite this existing Item instead of creating a new one.
-        return $previousExtractItem ? $previousExtractItem->appliedTo : new Item();
+        return $existingItem ?: new Item();
     }
 
     protected function hasNoneExistingActivities(string $content): bool
@@ -234,17 +233,24 @@ class ProcessItemsCommand extends Command
 
     protected function extractSummary(string $content): string
     {
-        if (preg_match('/<h2>(?:Waarom \/ doel van de activiteit|Korte omschrijving)<\/h2>\s*(.*?)(?=<h2>)/s', $content, $matches)) {
+        if (preg_match('/<h2>(?:Waarom \/ doel van de activiteit|Korte omschrijving)<\/h2>\s*(.*?)(?=<h2>|<\/div>)/s', $content, $matches)) {
             return trim(strip_tags($matches[1]));
         }
 
         return '';
     }
 
-    protected function extractDescription(string $content): string
+    protected function extractDescription(string $content, string $title): string
     {
-        if (preg_match('/<h2>(?:Beschrijving van de activiteit|Themaverhaal)<\/h2>(.*?)(?=<h2>|<!-- Item Hits -->|<div class="clr">)/s', $content, $matches)) {
-            return $this->sanitize($matches[1]);
+        if (preg_match('/<h2>(?:Beschrijving van de activiteit|Themaverhaal)<\/h2>(.*?)(?=<h2>|<\/div>)/s', $content, $matches)) {
+            $sanitized = $this->sanitize($matches[1]);
+
+            if ($sanitized === null) {
+                $this->warn("No description found for Item '{$title}'.");
+                return '';
+            }
+
+            return $sanitized;
         }
 
         return '';
@@ -252,7 +258,7 @@ class ProcessItemsCommand extends Command
 
     protected function extractRequirements(string $content): ?string
     {
-        if (preg_match('/<h2>(?:Benodigd materiaal|Globale planning)<\/h2>(.*?)(?=<h2>|<!-- Item Hits -->|<div class="clr">)/s', $content, $matches)) {
+        if (preg_match('/<h2>(?:Benodigd materiaal|Globale planning)<\/h2>(.*?)(?=<h2>|<\/div>)/s', $content, $matches)) {
             return $this->sanitize($matches[1]);
         }
 
@@ -261,7 +267,7 @@ class ProcessItemsCommand extends Command
 
     protected function extractTips(string $content): ?string
     {
-        if (preg_match('/<h2>Tips<\/h2>(.*?)(?=<h2>|<!-- Item Hits -->|<div class="clr">)/s', $content, $matches)) {
+        if (preg_match('/<h2>Tips<\/h2>(.*?)(?=<h2>|<\/div>)/s', $content, $matches)) {
             return $this->sanitize($matches[1]);
         }
 
@@ -270,7 +276,7 @@ class ProcessItemsCommand extends Command
 
     protected function extractSafety(string $content): ?string
     {
-        if (preg_match('/<h2>Veiligheid<\/h2>(.*?)(?=<h2>|<!-- Item Hits -->|<div class="clr">)/s', $content, $matches)) {
+        if (preg_match('/<h2>Veiligheid<\/h2>(.*?)(?=<h2>|<\/div>)/s', $content, $matches)) {
             return $this->sanitize($matches[1]);
         }
 
@@ -520,16 +526,38 @@ class ProcessItemsCommand extends Command
         $cleaned = mb_convert_encoding($matches, 'UTF-8', 'UTF-8');
 
         // Replace all types of NBSPs with regular spaces.
-        $cleaned = str_replace(["\xC2\xA0", "\xA0", "&nbsp;", " "], ' ', $cleaned);
+        $cleaned = str_replace(['\xC2\xA0', '\xA0', '&nbsp;'], ' ', $cleaned);
 
-        // Strip all HTML attributes except href on anchor tags.
+        // Strip all HTML attributes except href on anchor tags and src/style on img tags.
         $cleaned = preg_replace_callback(
-            '/<((?!a\b)[a-z][a-z0-9]*)[^>]*?(\/?)>|<a\b[^>]*href="([^"]*)"[^>]*>/i',
+            '/<((?!(?:a|img)\b)[a-z][a-z0-9]*)[^>]*?(\/?)>|<(a|img)\b([^>]*?(href|src)="([^"]*)"[^>]*?(style="[^"]*")?|[^>]*?(style="[^"]*")[^>]*?(href|src)="([^"]*)")([^>]*?)>/i',
             static function ($matches) {
                 if (!isset($matches[3])) {
                     return '<' . $matches[1] . $matches[2] . '>';
                 }
-                return '<a href="' . $matches[3] . '">';
+
+                $tag = $matches[3];
+                $attrs = [];
+
+                // Check for href/src attribute
+                if (isset($matches[5]) && isset($matches[6])) {
+                    $attrName = $matches[5];
+                    $attrValue = $matches[6];
+                    $attrs[] = "{$attrName}=\"{$attrValue}\"";
+                } elseif (isset($matches[9]) && isset($matches[10])) {
+                    $attrName = $matches[9];
+                    $attrValue = $matches[10];
+                    $attrs[] = "{$attrName}=\"{$attrValue}\"";
+                }
+
+                // Check for style attribute
+                if ($tag === 'img' && !empty($matches[7])) {
+                    $attrs[] = $matches[7];
+                } elseif ($tag === 'img' && !empty($matches[8])) {
+                    $attrs[] = $matches[8];
+                }
+
+                return "<{$tag} " . implode(' ', $attrs) . ($tag === 'img' ? ' />' : '>');
             },
             $cleaned
         );

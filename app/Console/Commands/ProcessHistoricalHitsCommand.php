@@ -58,11 +58,9 @@ class ProcessHistoricalHitsCommand extends Command
         $progressBar->start();
 
         foreach ($historicalHits as $originalId => $hits) {
-            $itemId = ExtractedItem::query()
-                ->select('items.id')
-                ->join('items', 'items.id', '=', 'extracted_items.applied_to')
-                ->where('extracted_items.original_id', $originalId)
-                ->value('items.id');
+            $itemId = Item::query()
+                ->where('original_id', $originalId)
+                ->value('id');
 
             if ($itemId === null) {
                 $this->warn("Skipped original_id {$originalId} because the related item was not found.");

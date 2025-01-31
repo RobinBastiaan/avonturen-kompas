@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('items', function (Blueprint $table) {
             $table->id();
+            $table->integer('original_id');
             $table->boolean('is_published')->default(false);
             $table->string('title');
             $table->string('slug');
@@ -35,6 +36,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->index('original_id');
             $table->index('slug');
             $table->index('hash');
 

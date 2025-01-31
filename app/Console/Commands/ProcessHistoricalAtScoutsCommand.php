@@ -43,12 +43,12 @@ class ProcessHistoricalAtScoutsCommand extends Command
         $progressBar->start();
 
         foreach (self::HISTORICAL_AT_SCOUTS as $atScout) {
-            $beversItemId = $this->findItem($atScout[2]);
-            $welpenItemId = $this->findItem($atScout[3]);
-            $scoutsItemId = $this->findItem($atScout[4]);
-            $explorersItemId = $this->findItem($atScout[5]);
-            $roverscoutsItemId = $this->findItem($atScout[6]);
-            $extraItemId = $this->findItem($atScout[7]);
+            $beversItemId = $atScout[2] ? $this->findItemId($atScout[2]) : null;
+            $welpenItemId = $atScout[3] ? $this->findItemId($atScout[3]) : null;
+            $scoutsItemId = $atScout[4] ? $this->findItemId($atScout[4]) : null;
+            $explorersItemId = $atScout[5] ? $this->findItemId($atScout[5]) : null;
+            $roverscoutsItemId = $atScout[6] ? $this->findItemId($atScout[6]) : null;
+            $extraItemId = $atScout[7] ? $this->findItemId($atScout[7]) : null;
 
             // Editions without any items should be skipped to prevent empty rows.
             if ($beversItemId === null && $welpenItemId === null && $scoutsItemId === null && $explorersItemId === null && $roverscoutsItemId === null && $extraItemId === null) {
@@ -97,13 +97,11 @@ class ProcessHistoricalAtScoutsCommand extends Command
         return $historicalAtScoutsCount;
     }
 
-    protected function findItem(int $originalItemId): ?int
+    protected function findItemId(int $originalItemId): ?int
     {
-        return ExtractedItem::query()
-            ->select('items.id')
-            ->join('items', 'items.id', '=', 'extracted_items.applied_to')
-            ->where('extracted_items.original_id', $originalItemId)
-            ->value('items.id');
+        return Item::query()
+            ->where('original_id', $originalItemId)
+            ->value('id');
     }
 
     protected const HISTORICAL_AT_SCOUTS = [
@@ -367,7 +365,7 @@ class ProcessHistoricalAtScoutsCommand extends Command
         ['2023-08-01', 'Sneekweek', 13072, 8440, 12965, 13074, 13075, null],
         ['2023-08-15', 'Fotografie', 10428, 7654, 12693, 821, 2166, null],
         ['2023-08-29', 'Hiken met topografische kaart', 12959, 9121, 12945, 12961, 12962, 8273],
-        ['2023-09-12', 'Magie', 13103, 13089, 13093, 13092, 13088, '^'],
+        ['2023-09-12', 'Magie', 13103, 13089, 13093, 13092, 13088, null],
         ['2023-09-26', 'Soekot of Loofhuttenfeest', 13091, 10305, 13090, 13087, 13086, null],
         ['2023-10-10', 'JOTA-JOTI: Connecting Dots', 13129, 714, 11845, 13128, 13124, null],
         ['2023-10-24', 'Nacht van de Nacht', 13094, 13095, 13096, 13098, 13099, null],
@@ -402,5 +400,7 @@ class ProcessHistoricalAtScoutsCommand extends Command
         ['2024-12-03', 'Internationale dag van de burgerluchtvaart', 13450, 13455, 13454, 13461, 13449, null],
         ['2024-12-17', 'Internationale dag van de korte film ', 13456, 13451, 13448, 13453, 13452, null],
         ['2024-12-31', 'Braille dag', 13460, 13475, 13477, 13463, 13476, null],
+        ['2025-01-14', 'Bekende Routes', 13462, 13490, 10851, 13479, 7571, null],
+        ['2025-01-28', 'Wereld Denk Dag ', 13494, 13493, 13471, 13492, 13495, null],
     ];
 }

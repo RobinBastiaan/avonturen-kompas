@@ -19,6 +19,7 @@ use Illuminate\Support\Collection;
  * Items are either activities or camps and are central for all content.
  *
  * @property int                        $id
+ * @property int                        $original_id // For ease of reference.
  * @property boolean                    $is_published
  * @property string                     $title
  * @property string                     $slug

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\ExtractedItem;
 use App\Models\Item;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -23,6 +24,11 @@ class ItemController extends Controller
             // If slug remains null, maybe only the slug was given. Try to find an exact match on the slug instead.
             if ($item === null) {
                 $item = Item::query()->select('slug', 'hash')->where('slug', $hash)->first();
+            }
+
+            // As a final generous fallback try to find by the original id.
+            if ($item === null) {
+                $item = Item::query()->select('slug', 'hash')->where('original_id', $hash)->first();
             }
 
             if ($item === null) {
