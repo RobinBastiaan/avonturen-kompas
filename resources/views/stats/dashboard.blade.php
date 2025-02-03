@@ -7,15 +7,14 @@
     <p><a href="{{ route('stats.activities-per-age-group') }}">Activiteiten per leeftijdgroep</a></p>
     <p><a href="{{ route('stats.item-control') }}">Item control</a></p>
 
-    {{-- Card: Most populair @-scout Item --}}
-    @if(isset($mostPopulairAtScoutItem))
+    {{-- Card: Most popular @-scout Item --}}
+    @if(isset($mostPopularAtScoutItem))
         <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <h3 class="text-xl font-bold">Meest populaire @-scout activiteit van afgelopen 6 maanden</h3>
             <div class="inline-block min-w-full py-2 align-middle">
-                <a href="{{ route('item', ['hash' => $mostPopulairAtScoutItem->hash, 'slug' => $mostPopulairAtScoutItem->slug]) }}">
-                    {{ $mostPopulairAtScoutItem->title }}
+                <a href="{{ route('item', ['hash' => $mostPopularAtScoutItem->hash, 'slug' => $mostPopularAtScoutItem->slug]) }}">
+                    {{ $mostPopularAtScoutItem->title }} (+ {{ $mostPopularAtScoutItem->hits }} hits)
                 </a>
-                met {{ $mostPopulairAtScoutItem->hits }} hits
             </div>
         </div>
     @endif
@@ -60,7 +59,7 @@
         </div>
     @endif
 
-    {{-- Random Stale Items --}}
+    {{-- Listing: Random Stale Items --}}
     @if(isset($randomStaleItems) && $randomStaleItems->count() > 0)
         <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <h3 class="text-xl font-bold">Willekeurig niet-recent aangepaste activiteiten</h3>
@@ -69,6 +68,22 @@
                     @foreach($randomStaleItems as $randomStaleItem)
                         <li><a href="{{ route('item', ['hash' => $randomStaleItem->hash, 'slug' => $randomStaleItem->slug]) }}">
                             {{ $randomStaleItem->title }}
+                        </a></li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
+
+    {{-- Listing: Most Popular Items Last Month --}}
+    @if(isset($mostPopularItemsLastMonth) && $mostPopularItemsLastMonth->count() > 0)
+        <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <h3 class="text-xl font-bold">Meest populaire activiteiten afgelopen maand</h3>
+            <div class="inline-block min-w-full py-2 align-middle">
+                <ul>
+                    @foreach($mostPopularItemsLastMonth as $mostPopularItem)
+                        <li><a href="{{ route('item', ['hash' => $mostPopularItem->hash, 'slug' => $mostPopularItem->slug]) }}">
+                            {{ $loop->iteration }}. {{ $mostPopularItem->title }} (+ {{ $mostPopularItem->hits_diff }} hits)
                         </a></li>
                     @endforeach
                 </ul>

@@ -79,6 +79,7 @@ class ItemController extends Controller
                     }])
                     ->whereNull('comment_id');
             }])
+            ->with('historicalHits')
             ->withCount('favoritedBy')
             ->where('hash', $hash)
             ->first();

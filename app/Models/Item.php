@@ -141,7 +141,7 @@ class Item extends Model
 
     public function historicalHits(): HasMany
     {
-        return $this->hasMany(Hits::class);
+        return $this->hasMany(Hits::class)->orderBy('extracted_at');
     }
 
     public function atScouts(): AtScoutRelation

@@ -88,4 +88,31 @@
             </div>
         @endif
     </article>
+
+    {{-- Stats --}}
+    <div class="mt-6">
+        <h2 class="text-xl font-semibold">Statistieken</h2>
+        <div class="mt-2 overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Datum</th>
+                        <th class="px-4 py-2 text-right text-sm font-medium text-gray-500">Aantal hits</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @foreach($item->historicalHits as $hit)
+                        <tr>
+                            <td class="px-4 py-2 text-sm text-gray-600">
+                                {{ $hit->extracted_at->translatedFormat('d M Y') }}
+                            </td>
+                            <td class="px-4 py-2 text-sm text-gray-600 text-right">
+                                {{ number_format($hit->hits) }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
 @endsection
