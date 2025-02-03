@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedInteger('hits')->default(0);
             $table->mediumText('raw_content');
 
-            $table->timestamp('extracted_at');
+            $table->timestamp('extracted_at')->nullable();
             $table->timestamp('published_at')->nullable();
             $table->timestamp('modified_at')->nullable();
             $table->string('author_name')->nullable();

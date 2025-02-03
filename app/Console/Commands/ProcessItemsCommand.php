@@ -24,6 +24,9 @@ class ProcessItemsCommand extends Command
     protected $description = 'Process not yet applied items, and create related entities if not yet present.';
 
     protected TextStatistics $textStatistics;
+    protected array $existingItemIds;
+    protected array $existingCategoryIds;
+    protected array $existingTagIds;
 
     public function __construct()
     {
@@ -35,11 +38,55 @@ class ProcessItemsCommand extends Command
     public function handle(): int
     {
         $startTime = now();
+
+        $unprocessedItemDate = $this->getUnprocessedItemDate();
+        while ($unprocessedItemDate) {
+            $this->processItemsForDate($unprocessedItemDate);
+            $unprocessedItemDate = $this->getUnprocessedItemDate();
+        }
+
+        $totalTime = ceil(now()->diffInSeconds($startTime, true));
+        $this->newLine();
+        $this->info("Total item processing time: {$totalTime} seconds");
+
+        return CommandAlias::SUCCESS;
+    }
+
+    protected function getUnprocessedItemDate(): ?Carbon
+    {
+        return ExtractedItem::query()
+            ->whereNull('applied_to')
+            ->first()
+            ?->extracted_at;
+    }
+
+    protected function processItemsForDate(Carbon $firstItemDate): int
+    {
         $skippedExtractedItems = collect();
+
+        $this->existingItemIds = [];
+        $this->existingCategoryIds = [];
+        $this->existingTagIds = [];
+
+        // Retrieve all existing model ID's to know what models are no longer in the extracted items and thus ready to be removed.
+        // Only if there are no items already processed for this date.
+        $unprocessedItemDate = $this->getUnprocessedItemDate();
+        $processedItemDate = ExtractedItem::query()
+            ->whereNotNull('applied_to')
+            ->orderByDesc('id')
+            ->first()
+            ?->extracted_at;
+
+        if ($unprocessedItemDate && $processedItemDate && !$unprocessedItemDate->isSameDay($processedItemDate)) {
+            $this->existingItemIds = Item::pluck('id')->toArray();
+            $this->existingCategoryIds = Category::pluck('id')->toArray();
+            $this->existingTagIds = Tag::pluck('id')->toArray();
+        }
 
         /** @var Collection|ExtractedItem[] $extractedItems */
         $extractedItems = ExtractedItem::query()
             ->whereNull('applied_to')
+            ->whereDate('extracted_at', $firstItemDate->format('Y-m-d'))
             ->get();
 
         $extractedItemsCount = $extractedItems->count();
@@ -52,7 +99,7 @@ class ProcessItemsCommand extends Command
         $progressBar->start();
 
         foreach ($extractedItems as $extractedItem) {
-            $skippedExtractedItem = $this->processItem($extractedItem);
+            $skippedExtractedItem = $this->processItem($extractedItem, true);
 
             if ($skippedExtractedItem) {
                 $skippedExtractedItems->push($skippedExtractedItem);
@@ -61,7 +108,7 @@ class ProcessItemsCommand extends Command
             }
         }
         foreach ($skippedExtractedItems as $skippedExtractedItem) {
-            $this->processItem($skippedExtractedItem);
+            $this->processItem($skippedExtractedItem, false);
 
             $progressBar->advance();
         }
@@ -71,9 +118,19 @@ class ProcessItemsCommand extends Command
         // Recalculate counts.
         $this->recalculateUseCounts();
 
-        $totalTime = ceil(now()->diffInSeconds($startTime, true));
-        $this->newLine();
-        $this->info("Total item processing time: {$totalTime} seconds");
+        // Remove models no longer present in the extracted items, as apparently they have been deleted in mean time.
+        Item::whereIn('id', $this->existingItemIds)->get()->each(function (Item $item) {
+            $this->warn("Deleting item {$item->id}: {$item->title} because it is no longer present in the extracted data.");
+            $item->delete();
+        });
+        Category::whereIn('id', $this->existingCategoryIds)->get()->each(function (Category $category) {
+            $this->warn("Deleting category {$category->id}: {$category->name} because it is no longer present in the extracted data.");
+            $category->delete();
+        });
+        Tag::whereIn('id', $this->existingTagIds)->get()->each(function (Tag $tag) {
+            $this->warn("Deleting tag {$tag->id}: {$tag->name} because it is no longer present in the extracted data.");
+            $tag->delete();
+        });
 
         return CommandAlias::SUCCESS;
     }
@@ -81,14 +138,16 @@ class ProcessItemsCommand extends Command
     /**
      * Process an item and create related entities if they do not exist yet.
      */
-    protected function processItem(ExtractedItem $extractedItem): ?ExtractedItem
+    protected function processItem(ExtractedItem $extractedItem, $canSkip): ?ExtractedItem
     {
         $item = $this->findOrCreateItem($extractedItem);
+        // Remove all found items from the existing item array.
+        $this->existingItemIds = array_diff($this->existingItemIds, [$item->id]);
         $isCamp = $this->isCamp($extractedItem->raw_content);
 
         // Items that are an activity of a camp, do not know what camp they are part of. And since it is impossible to relate a camp to an
         // activity that does not yet exist, we need to check if a camp contains not yet created activities and skip that camp for now.
-        if ($isCamp && $this->hasNoneExistingActivities($extractedItem->raw_content)) {
+        if ($canSkip && $isCamp && $this->hasNoneExistingActivities($extractedItem->raw_content)) {
             $this->warn("Skipped ExtractedItem {$extractedItem->id} because it is a camp with activities that do not exist yet.");
 
             return $extractedItem;
@@ -196,9 +255,20 @@ class ProcessItemsCommand extends Command
 
     protected function hasNoneExistingActivities(string $content): bool
     {
-        $slugs = $this->extractActivitySlugs($content);
+        $ids = $this->extractOriginalActivityIds($content);
 
-        return Item::query()->whereIn('slug', $slugs)->count() !== count($slugs);
+        return Item::query()->whereIn('original_id', $ids)->count() !== count($ids);
+    }
+
+    protected function extractOriginalActivityIds(string $content): array
+    {
+        if (!preg_match('/<h2>Gekoppelde activiteiten<\/h2>\s*<ul>(.*?)<\/ul>/s', $content, $section)) {
+            return [];
+        }
+
+        preg_match_all('/\/item\/(\d+)/', $section[1], $matches);
+
+        return array_map('intval', $matches[1]);
     }
 
     protected function extractActivities(string $content): Collection
@@ -384,6 +454,9 @@ class ProcessItemsCommand extends Command
             }
         }
 
+        // Remove all found categories from the existing category array.
+        $this->existingCategoryIds = array_diff($this->existingCategoryIds, $categories->pluck('id')->all());
+
         return $categories;
     }
 
@@ -393,7 +466,7 @@ class ProcessItemsCommand extends Command
             return null;
         }
 
-        return collect($matches[1])->map(function ($name) {
+        $tags = collect($matches[1])->map(function ($name) {
             // Fix known misspellings of tags because the original data doesn't support hyphens.
             $name = $name === 'JOTA JOTI' ? 'JOTA-JOTI' : $name;
             $name = $name === 'Holi Phagwa' ? 'Holi-Phagwa' : $name;
@@ -411,6 +484,11 @@ class ProcessItemsCommand extends Command
                 return $tag;
             });
         });
+
+        // Remove all found tags from the existing tag array.
+        $this->existingTagIds = array_diff($this->existingTagIds, $tags->pluck('id')->all());
+
+        return $tags;
     }
 
     protected function extractComments(int $itemId, string $content): void
