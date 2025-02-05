@@ -12,7 +12,7 @@
                         Door {{ $item->createdBy->name }}
                     @endif
                     @if ($item->created_at)
-                        op {{ $item->created_at->toFormattedDateString() }}
+                        op {{ $item->created_at->translatedFormat('d M Y') }}
                     @endif
                 </span>
 
@@ -78,7 +78,7 @@
                     @foreach($item->atScouts as $atScout)
                         <div class="flex items-center gap-2">
                             <time datetime="{{ $atScout->published_at->format('Y-m-d') }}" class="text-gray-600">
-                                {{ $atScout->published_at->format('d M Y') }}
+                                {{ $atScout->published_at->translatedFormat('d M Y') }}
                             </time>
                             <span class="text-gray-600">•</span>
                             <span>{{ $atScout->name }}</span>

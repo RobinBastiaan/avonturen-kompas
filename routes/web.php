@@ -1,10 +1,11 @@
 <?php
 
+use App\Http\Controllers\CsvExport\ItemCsvExportController;
+use App\Http\Controllers\CsvExport\TagCsvExportController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\Stats\ActivitiesPerAgeGroupController;
 use App\Http\Controllers\Stats\DashboardController;
 use App\Http\Controllers\Stats\ItemControlController;
-use App\Http\Controllers\Stats\TagController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -18,5 +19,6 @@ Route::prefix('stats')->name('stats.')->group(function () {
     Route::get('/activities-per-age-group', ActivitiesPerAgeGroupController::class)->name('activities-per-age-group');
     Route::get('/item-control', ItemControlController::class)->name('item-control');
 
-    Route::get('/tag/export', [TagController::class, 'export'])->name('tag.export');
+    Route::get('/tag/export', [TagCsvExportController::class, 'export'])->name('tag.export');
+    Route::get('/item/export', [ItemCsvExportController::class, 'export'])->name('item.export');
 });
