@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Stats;
 
 use App\Http\Controllers\Controller;
+use App\Models\Hits;
 use App\Models\Item;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -45,6 +46,7 @@ class DashboardController extends Controller
             ->get();
 
         $mostPopularItemsLastMonth = $this->getMostPopularItemsLastMonth();
+        $totalItemsOverTime = $this->getTotalItemsOverTime();
 
         return view('stats.dashboard', compact(
             'mostPopularAtScoutItem',
@@ -55,6 +57,7 @@ class DashboardController extends Controller
             'percentageTagged',
             'randomStaleItems',
             'mostPopularItemsLastMonth',
+            'totalItemsOverTime',
         ));
     }
 
@@ -80,5 +83,18 @@ class DashboardController extends Controller
             ->each(function ($item) {
                 $item->hits_diff = $item->current_month_hits - $item->last_month_hits;
             });
+    }
+
+    protected function getTotalItemsOverTime(): Collection
+    {
+        // Using the Hits is more accurate than "items.created_at" because items can be deleted.
+        // This query can be cached until the end of the month, since that is when a new extraction is performed.
+        return cache()->remember('total-items-over-time', now()->endOfMonth(), function () {
+            return Hits::query()
+                ->selectRaw('DATE(extracted_at) as date, COUNT(hits) as count, SUM(hits) as hits')
+                ->groupBy('date')
+                ->orderBy('date', 'asc')
+                ->get();
+        });
     }
 }

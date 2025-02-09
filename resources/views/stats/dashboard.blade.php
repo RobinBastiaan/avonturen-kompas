@@ -90,4 +90,20 @@
             </div>
         </div>
     @endif
+
+    {{-- Graph: Activities and hits over time --}}
+    @if(isset($totalItemsOverTime) && $totalItemsOverTime->count() > 0)
+        <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <h3 class="text-xl font-bold">Totaal activiteiten en hits</h3>
+            <div class="inline-block min-w-full py-2 align-middle">
+                <ul>
+                    @foreach($totalItemsOverTime as $itemOverTime)
+                        <li>
+                            {{ $itemOverTime['count'] }} activiteiten met {{ $itemOverTime['hits'] }} hits op {{ $itemOverTime['date'] }}
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
 @endsection
