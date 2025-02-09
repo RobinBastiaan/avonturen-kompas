@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Stats;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\CheckBrokenUrls;
 use App\Models\Item;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class ItemControlController extends Controller
 {
@@ -29,6 +32,7 @@ class ItemControlController extends Controller
         $campsWithoutActivities = $this->campsWithoutActivities();
         $tagsMissingAgeGroups = $this->tagsMissingAgeGroups();
         $tagsHighOverlap = $this->tagsHighOverlap();
+        $brokenUrls = $this->getBrokenUrls();
 
         return view('stats.item-control', [
             'minItemWords'           => self::MIN_ITEM_WORDS,
@@ -40,6 +44,7 @@ class ItemControlController extends Controller
             'campsWithoutActivities' => $campsWithoutActivities,
             'tagsMissingAgeGroups'   => $tagsMissingAgeGroups,
             'tagsHighOverlap'        => $tagsHighOverlap,
+            'brokenUrls'             => $brokenUrls,
         ]);
     }
 
@@ -170,5 +175,20 @@ class ItemControlController extends Controller
             WHERE overlap_percentage > ?
             ORDER BY tag1_name, tag2_name
         ', [self::MAX_TAG_OVERLAP_PERCENTAGE]);
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    protected function getBrokenUrls(): Collection
+    {
+        // Dispatch job if cache is empty.
+        if (!cache()->has('broken_urls')) {
+            CheckBrokenUrls::dispatch();
+            return collect();
+        }
+
+        return cache()->get('broken_urls', collect());
     }
 }

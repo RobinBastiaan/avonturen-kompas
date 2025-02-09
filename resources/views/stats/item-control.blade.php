@@ -109,6 +109,30 @@
 
         <hr>
 
+        {{-- Broken URL's --}}
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-4">Kapotte URL's ({{ $brokenUrls->count() }} URL's)</h2>
+            @if($brokenUrls->isNotEmpty())
+                <ul class="list-disc pl-5">
+                    @foreach($brokenUrls as $brokenUrl)
+                        <li>
+                            <a href="{{ route('item', ['hash' => $brokenUrl['item_hash'], 'slug' => $brokenUrl['item_slug']]) }}" class="text-blue-600 hover:underline">
+                                {{ $brokenUrl['item_title'] }}
+                            </a>
+                            <code class="text-sm text-gray-600">
+                                {{ Str::limit(Str::before($brokenUrl['url'], '?'), 150) }}
+                            </code>
+                            <span class="text-sm text-red-600">({{ $brokenUrl['status_code'] }})</span>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <p class="text-gray-600">Er zijn geen kapotte URL's.</p>
+            @endif
+        </section>
+
+        <hr>
+
         {{-- Tag Analysis --}}
         <section class="mb-12">
             <h2 class="text-2xl font-bold mb-4">Tag Analysis</h2>

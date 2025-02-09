@@ -7,6 +7,7 @@ use App\Console\Commands\ProcessItemsCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\Artisan;
+use App\Jobs\CheckBrokenUrls;
 
 class Kernel extends ConsoleKernel
 {
@@ -22,6 +23,8 @@ class Kernel extends ConsoleKernel
             ->then(function () {
                 Artisan::call(ProcessItemsCommand::class);
             });
+
+        $schedule->job(new CheckBrokenUrls)->monthly();
     }
 
     /**
