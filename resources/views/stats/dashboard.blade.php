@@ -6,6 +6,7 @@
     {{-- Links to other stats pages --}}
     <p><a href="{{ route('stats.activities-per-age-group') }}">Activiteiten per leeftijdgroep</a></p>
     <p><a href="{{ route('stats.item-control') }}">Item control</a></p>
+    <a href="{{ route('stats.theme-usage') }}">Thema gebruik</a>
 
     {{-- Card: Most popular @-scout Item --}}
     @if(isset($mostPopularAtScoutItem))

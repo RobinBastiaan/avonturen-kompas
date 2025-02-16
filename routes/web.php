@@ -6,6 +6,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\Stats\ActivitiesPerAgeGroupController;
 use App\Http\Controllers\Stats\DashboardController;
 use App\Http\Controllers\Stats\ItemControlController;
+use App\Http\Controllers\Stats\ThemeUsageController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -21,4 +22,6 @@ Route::prefix('stats')->name('stats.')->group(function () {
 
     Route::get('/tag/export', [TagCsvExportController::class, 'export'])->name('tag.export');
     Route::get('/item/export', [ItemCsvExportController::class, 'export'])->name('item.export');
+
+    Route::get('/theme-usage', ThemeUsageController::class)->name('theme-usage');
 });
