@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class Item.
@@ -89,6 +90,10 @@ class Item extends Model
             }
 
             $item->hash = str()->random(6);
+        });
+
+        static::created(function () {
+            Cache::forget('latest_additions');
         });
     }
 

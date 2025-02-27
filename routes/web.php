@@ -3,6 +3,8 @@
 use App\Http\Controllers\CsvExport\ItemCsvExportController;
 use App\Http\Controllers\CsvExport\TagCsvExportController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Stats\ActivitiesPerAgeGroupController;
 use App\Http\Controllers\Stats\DashboardController;
 use App\Http\Controllers\Stats\ItemControlController;
@@ -10,11 +12,9 @@ use App\Http\Controllers\Stats\ThemeUsageController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
-
+Route::get('/', LandingPageController::class)->name('landing-page');
 Route::get('/item/{hash}/{slug?}', ItemController::class)->name('item');
+Route::get('/search', SearchController::class)->name('search');
 
 Route::prefix('stats')->middleware(['auth', 'verified'])->name('stats.')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
@@ -35,4 +35,4 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

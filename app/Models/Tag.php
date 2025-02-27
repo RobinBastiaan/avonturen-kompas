@@ -34,6 +34,8 @@ use Illuminate\Support\Collection;
  * @property User|null         $createdBy
  * @property User|null         $updatedBy
  * @property Collection|Item[] $items
+ *
+ * @method withUpcomingSpecialInterest() Builder
  */
 #[ScopedBy([PublishedScope::class])]
 class Tag extends Model
@@ -48,7 +50,7 @@ class Tag extends Model
     protected $hidden = ['pivot'];
 
     protected $casts = [
-        'is_published'        => 'boolean',
+        'is_published' => 'boolean',
         'special_interest_at' => 'date',
     ];
 
@@ -83,5 +85,22 @@ class Tag extends Model
         }
 
         return $today->between($specialDay, $specialDay->copy()->subWeeks(2));
+    }
+
+    /**
+     * Scope to get tags with special interest dates some time from now.
+     */
+    public function scopeWithUpcomingSpecialInterest($query, int $monthsInAdvance)
+    {
+        $now = now()->startOfDay();
+        $dateFromNow = now()->addMonths($monthsInAdvance)->startOfDay();
+
+        return $query->whereNotNull('special_interest_at')
+            ->where(function ($query) use ($now, $dateFromNow) {
+                $query->whereRaw('DATE_FORMAT(special_interest_at, "%m-%d") BETWEEN ? AND ?', [
+                    $now->format('m-d'),
+                    $dateFromNow->format('m-d')
+                ]);
+            });
     }
 }
