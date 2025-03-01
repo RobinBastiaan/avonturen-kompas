@@ -5,6 +5,7 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Database\Seeders\ExtractedItems\ExtractedItems20250101TableSeeder;
 use Database\Seeders\ExtractedItems\ExtractedItems20250201TableSeeder;
+use Database\Seeders\ExtractedItems\ExtractedItems20250301TableSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -21,5 +22,6 @@ class DatabaseSeeder extends Seeder
         // Add item extractions as seeds with orangehill/iseed, which will be added over time for an historical overview.
         $this->call(ExtractedItems20250101TableSeeder::class);
         $this->call(ExtractedItems20250201TableSeeder::class);
+        $this->call(ExtractedItems20250301TableSeeder::class);
     }
 }
