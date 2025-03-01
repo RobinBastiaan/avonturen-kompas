@@ -27,6 +27,9 @@ class ProcessItemsCommand extends Command
     protected array $existingItemIds;
     protected array $existingCategoryIds;
     protected array $existingTagIds;
+    protected int $createdCount = 0;
+    protected int $updatedCount = 0;
+    protected int $notChangedCount = 0;
 
     public function __construct()
     {
@@ -48,6 +51,10 @@ class ProcessItemsCommand extends Command
         $totalTime = ceil(now()->diffInSeconds($startTime, true));
         $this->newLine();
         $this->info("Total item processing time: {$totalTime} seconds");
+        $this->info("Items created: {$this->createdCount}");
+        $this->info("Items updated: {$this->updatedCount}");
+        $this->info("Items unchanged: {$this->notChangedCount}");
+        $this->info("Total items processed: " . ($this->createdCount + $this->updatedCount + $this->notChangedCount));
 
         return CommandAlias::SUCCESS;
     }
@@ -153,57 +160,80 @@ class ProcessItemsCommand extends Command
             return $extractedItem;
         }
 
-        $item->original_id = $extractedItem->original_id;
-        $item->is_published = true;
-        $item->title = $this->extractTitle($extractedItem->raw_content);
-        $item->slug = $extractedItem->original_slug;
-        $item->is_camp = $isCamp;
-        $item->camp_length = $this->extractCampLength($extractedItem->raw_content);
-        $item->summary = $this->extractSummary($extractedItem->raw_content);
-        $item->description = $this->extractDescription($extractedItem->raw_content, $item->title);
-        $item->requirements = $this->extractRequirements($extractedItem->raw_content);
-        $item->tips = $this->extractTips($extractedItem->raw_content);
-        $item->safety = $this->extractSafety($extractedItem->raw_content);
-        $item->hits = $extractedItem->hits;
-        $item->word_count = $this->calculateWordCounts($item);
-        $item->flesch_reading_ease = $this->calculateFleschReadingEase($item);
-        $item->created_by = $extractedItem->author_name ? $this->extractCreatedBy($extractedItem->author_name)->id : null;
-        // Note: updated_by is not given in the extracted item, so we leave it null.
-        $item->created_at = $extractedItem->published_at;
-        $item->updated_at = $extractedItem->modified_at;
-        $item->save();
+        // Create new attributes array to compare with existing.
+        $newAttributes = [
+            'original_id'  => $extractedItem->original_id,
+            'is_published' => true,
+            'title'        => $this->extractTitle($extractedItem->raw_content),
+            'slug'         => $extractedItem->original_slug,
+            'is_camp'      => $isCamp,
+            'camp_length'  => $this->extractCampLength($extractedItem->raw_content),
+            'summary'      => $this->extractSummary($extractedItem->raw_content),
+            'description'  => $this->extractDescription($extractedItem->raw_content, $item->title),
+            'requirements' => $this->extractRequirements($extractedItem->raw_content),
+            'tips'         => $this->extractTips($extractedItem->raw_content),
+            'safety'       => $this->extractSafety($extractedItem->raw_content),
+            'hits'         => $extractedItem->hits,
+            'created_by'   => $extractedItem->author_name ? $this->extractCreatedBy($extractedItem->author_name)->id : null,
+            // Note: updated_by is not given in the extracted item, so we leave it null.
+            'created_at'   => $extractedItem->published_at,
+            'updated_at'   => $extractedItem->modified_at,
+        ];
 
-        // Find or create related entities.
-        $this->newLine();
-        $item->createdBy()->associate($extractedItem->author_name ? $this->extractCreatedBy($extractedItem->author_name) : null);
-        $item->categories()->sync($this->extractCategories($extractedItem->raw_content));
-        $item->tags()->sync($this->extractTags($extractedItem->raw_content));
-        $this->extractComments($item->id, $extractedItem->raw_content);
-        $this->extractHits($item->id, $extractedItem->extracted_at, $extractedItem->hits);
-        $item->save();
-
-        if ($isCamp) {
-            $linkedActivities = $this->extractActivities($extractedItem->raw_content);
-            $syncData = $linkedActivities->mapWithKeys(function (Item $activity, $index) use ($item) {
-                return [$activity->id => [
-                    'camp_id'    => $item->id,
-                    'day_number' => 1, // The original linked activities do not have a day number, so set it arbitrarily.
-                    'sort_order' => $index + 1,
-                ]];
-            });
-
-            $item->activities()->sync($syncData);
+        // Check if any attributes are different.
+        $hasChanges = false;
+        foreach ($newAttributes as $key => $value) {
+            if ($item->$key != $value) {
+                $hasChanges = true;
+                break;
+            }
         }
 
-        // Mark the creation of the new item on the extracted item.
+        if ($hasChanges || $item->wasRecentlyCreated) {
+            // Apply new attributes and save.
+            foreach ($newAttributes as $key => $value) {
+                $item->$key = $value;
+            }
+            $item->word_count = $this->calculateWordCounts($item);
+            $item->flesch_reading_ease = $this->calculateFleschReadingEase($item);
+            $item->save();
+
+            // Find or create related entities.
+            $this->newLine();
+            $item->createdBy()->associate($extractedItem->author_name ? $this->extractCreatedBy($extractedItem->author_name) : null);
+            $item->categories()->sync($this->extractCategories($extractedItem->raw_content));
+            $item->tags()->sync($this->extractTags($extractedItem->raw_content));
+            $this->extractComments($item->id, $extractedItem->raw_content);
+            $this->extractHits($item->id, $extractedItem->extracted_at, $extractedItem->hits);
+            $item->save();
+
+            if ($isCamp) {
+                $linkedActivities = $this->extractActivities($extractedItem->raw_content);
+                $syncData = $linkedActivities->mapWithKeys(function (Item $activity, $index) use ($item) {
+                    return [$activity->id => [
+                        'camp_id'    => $item->id,
+                        'day_number' => 1, // The original linked activities do not have a day number, so set it arbitrarily.
+                        'sort_order' => $index + 1,
+                    ]];
+                });
+
+                $item->activities()->sync($syncData);
+            }
+        }
+
+        if (!$hasChanges) {
+            $this->notChangedCount++;
+        } elseif ($item->wasRecentlyCreated) {
+            $this->createdCount++;
+            $this->info("Created Item {$item->id} with data from ExtractedItem {$extractedItem->id} (original id {$extractedItem->original_id}).");
+        } else {
+            $this->updatedCount++;
+            $this->info("Updated Item {$item->id} with data from ExtractedItem {$extractedItem->id} (original id {$extractedItem->original_id}).");
+        }
+
+        // Mark the extraction as applied regardless of whether changes were made.
         $extractedItem->applied_to = $item->id;
         $extractedItem->save();
-
-        if ($item->wasRecentlyCreated) {
-            $this->info("Created Item {$item->id} with data from ExtractedItem {$extractedItem->id}.");
-        } else {
-            $this->info("Updated Item {$item->id} with data from ExtractedItem {$extractedItem->id}.");
-        }
 
         return null;
     }
@@ -295,9 +325,10 @@ class ProcessItemsCommand extends Command
     protected function extractTitle(string $content): string
     {
         if (preg_match('/<h2 class="itemTitle">\s*(.*?)\s*<\/h2>/s', $content, $matches)) {
-            return trim($matches[1]);
+            // First strip HTML tags, then decode entities to prevent HTML injection.
+            // This allows "&amp;" to be converted back to "&" for example.
+            return trim(htmlspecialchars_decode(strip_tags($matches[1]), ENT_QUOTES));
         }
-
         return '';
     }
 
