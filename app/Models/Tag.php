@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 
@@ -50,7 +51,7 @@ class Tag extends Model
     protected $hidden = ['pivot'];
 
     protected $casts = [
-        'is_published' => 'boolean',
+        'is_published'        => 'boolean',
         'special_interest_at' => 'date',
     ];
 
@@ -67,6 +68,11 @@ class Tag extends Model
     public function items(): BelongsToMany
     {
         return $this->belongsToMany(Item::class);
+    }
+
+    public function teams(): MorphToMany
+    {
+        return $this->morphToMany(Team::class, 'teamable');
     }
 
     /**
@@ -99,7 +105,7 @@ class Tag extends Model
             ->where(function ($query) use ($now, $dateFromNow) {
                 $query->whereRaw('DATE_FORMAT(special_interest_at, "%m-%d") BETWEEN ? AND ?', [
                     $now->format('m-d'),
-                    $dateFromNow->format('m-d')
+                    $dateFromNow->format('m-d'),
                 ]);
             });
     }

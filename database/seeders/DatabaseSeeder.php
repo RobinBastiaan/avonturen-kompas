@@ -16,10 +16,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Enrich category groups, categories and tags with additional data not present in the original data like description.
-        $this->call(CategoryGroupsWithCategoriesTableSeeder::class);
-        $this->call(TagsTableSeeder::class);
+        $this->call(CategoryGroupWithCategorySeeder::class);
+        $this->call(TagSeeder::class);
+        $this->call(TeamSeeder::class);
 
         // Add item extractions as seeds with orangehill/iseed, which will be added over time for an historical overview.
+        // When adding a new extracted items file, do not forget to update the namespace, rename the class, and remove the delete statement.
         $this->call(ExtractedItems20250101TableSeeder::class);
         $this->call(ExtractedItems20250201TableSeeder::class);
         $this->call(ExtractedItems20250301TableSeeder::class);

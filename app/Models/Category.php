@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 
@@ -70,5 +71,10 @@ class Category extends Model
     public function items(): BelongsToMany
     {
         return $this->belongsToMany(Item::class);
+    }
+
+    public function teams(): MorphToMany
+    {
+        return $this->morphToMany(Team::class, 'teamable');
     }
 }

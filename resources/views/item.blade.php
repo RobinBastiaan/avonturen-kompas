@@ -4,7 +4,7 @@
     <article class="max-w-4xl mx-auto px-4 py-8">
         {{-- Heading --}}
         <header class="mb-8">
-            <h1 class="text-3xl font-bold mb-4">{{ $item->title }}</h1>
+            <h1 class="text-4xl font-semibold mb-6 text-[#0066B2] dark:text-[#EDEDEC] font-['Roboto_Slab',serif]">{{ $item->title }}</h1>
 
             <div class="flex items-center text-gray-600 text-sm">
                 <span>
@@ -30,24 +30,24 @@
 
         {{-- Main Content --}}
         <div class="prose max-w-none my-8">
-            <h2 class="text-xl font-bold mb-4">Waarom / doel van de activiteit</h2>
+            <h2 class="text-2xl font-semibold mb-6 text-[#0066B2] dark:text-[#EDEDEC] font-['Roboto_Slab',serif]">Waarom / doel van de activiteit</h2>
             {{ $item->summary }}
 
-            <h2>Beschrijving van de activiteit</h2>
+            <h2 class="text-2xl font-semibold mb-6 text-[#0066B2] dark:text-[#EDEDEC] font-['Roboto_Slab',serif]">Beschrijving van de activiteit</h2>
             {!! $item->description !!}
 
             @if ($item->requirements)
-                <h2 class="text-xl font-bold mb-4">Benodigd materiaal</h2>
+                <h2 class="text-2xl font-semibold mb-6 text-[#0066B2] dark:text-[#EDEDEC] font-['Roboto_Slab',serif]">Benodigd materiaal</h2>
                 {!! $item->requirements !!}
             @endif
 
             @if ($item->tips)
-                <h2 class="text-xl font-bold mb-4">Tips</h2>
+                <h2 class="text-2xl font-semibold mb-6 text-[#0066B2] dark:text-[#EDEDEC] font-['Roboto_Slab',serif]">Tips</h2>
                 {!! $item->tips !!}
             @endif
 
             @if ($item->safety)
-                <h2 class="text-xl font-bold mb-4">Veiligheid</h2>
+                <h2 class="text-2xl font-semibold mb-6 text-[#0066B2] dark:text-[#EDEDEC] font-['Roboto_Slab',serif]">Veiligheid</h2>
                 {!! $item->safety !!}
             @endif
         </div>
@@ -73,7 +73,7 @@
         {{-- @-scout publications --}}
         @if($item->atScouts->isNotEmpty())
             <div class="mt-6">
-                <h2 class="text-xl font-semibold">Gezien in @-scout</h2>
+                <h2 class="text-2xl font-semibold mb-6 text-[#0066B2] dark:text-[#EDEDEC] font-['Roboto_Slab',serif]">Gezien in @-scout</h2>
                 <div class="space-y-2 mt-2">
                     @foreach($item->atScouts as $atScout)
                         <div class="flex items-center gap-2">
@@ -90,14 +90,15 @@
     </article>
 
     {{-- Stats --}}
+    {{-- TODO: move to admin section --}}
     <div class="mt-6">
-        <h2 class="text-xl font-semibold">Statistieken</h2>
+        <h2 class="text-2xl font-semibold mb-6 text-[#0066B2] dark:text-[#EDEDEC] font-['Roboto_Slab',serif]">Statistieken</h2>
         <div class="mt-2 overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead>
                     <tr>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Datum</th>
-                        <th class="px-4 py-2 text-right text-sm font-medium text-gray-500">Aantal hits</th>
+                        <th class="px-4 py-2 text-left text-sm font-bold">Datum</th>
+                        <th class="px-4 py-2 text-right text-sm font-bold">Aantal hits</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">

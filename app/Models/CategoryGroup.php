@@ -7,7 +7,6 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
@@ -51,12 +50,11 @@ class CategoryGroup extends Model
     ];
 
     protected $casts = [
-        'is_published' => 'boolean',
+        'is_published'                => 'boolean',
         'is_available_for_activities' => 'boolean',
-        'is_available_for_camps' => 'boolean',
-        'is_required' => 'boolean',
+        'is_available_for_camps'      => 'boolean',
+        'is_required'                 => 'boolean',
     ];
-
 
     public function createdBy(): BelongsTo
     {
