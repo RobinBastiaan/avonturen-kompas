@@ -16,7 +16,8 @@ Route::get('/', LandingPageController::class)->name('landing-page');
 Route::get('/item/{hash}/{slug?}', ItemController::class)->name('item');
 Route::get('/search', SearchController::class)->name('search');
 
-Route::prefix('stats')->middleware(['auth', 'verified'])->name('stats.')->group(function () {
+// ->middleware(['auth', 'verified'])
+Route::prefix('stats')->name('stats.')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
     Route::get('/activities-per-age-group', ActivitiesPerAgeGroupController::class)->name('activities-per-age-group');
     Route::get('/item-control', ItemControlController::class)->name('item-control');

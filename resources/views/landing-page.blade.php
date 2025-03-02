@@ -100,20 +100,22 @@
                     </div>
 
                     <!-- Tag Tips -->
-                    <div class="bg-white dark:bg-[#1b1b18] rounded-lg shadow-sm border border-[#19140015] dark:border-[#3E3E3A] p-8">
-                        <h2 class="text-2xl font-semibold mb-6 text-[#0066B2] dark:text-[#EDEDEC] font-['Roboto_Slab',serif]">Tag Tip: {{ $tagTips['tag']->name }}</h2>
+                    @if ($tagTips)
+                        <div class="bg-white dark:bg-[#1b1b18] rounded-lg shadow-sm border border-[#19140015] dark:border-[#3E3E3A] p-8">
+                            <h2 class="text-2xl font-semibold mb-6 text-[#0066B2] dark:text-[#EDEDEC] font-['Roboto_Slab',serif]">Tag Tip: {{ $tagTips['tag']->name }}</h2>
 
-                        <ul class="space-y-4">
-                            @foreach($tagTips['items'] as $item)
-                                <li class="group">
-                                    <a href="{{ route('item', ['hash' => $item->hash, 'slug' => $item->slug]) }}">
-                                        <h3 class="text-l font-semibold text-[#F2940A]">{{ $item->title }}</h3>
-                                        <p><small>{{ Str::limit($item->summary, 100) }}</small></p>
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
+                            <ul class="space-y-4">
+                                @foreach($tagTips['items'] as $item)
+                                    <li class="group">
+                                        <a href="{{ route('item', ['hash' => $item->hash, 'slug' => $item->slug]) }}">
+                                            <h3 class="text-l font-semibold text-[#F2940A]">{{ $item->title }}</h3>
+                                            <p><small>{{ Str::limit($item->summary, 100) }}</small></p>
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                 </div>
             </div>
 

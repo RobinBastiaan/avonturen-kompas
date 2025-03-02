@@ -36,7 +36,7 @@ class DashboardController extends Controller
 
         $taggedItems = Item::query()->whereHas('tags')->count();
         $totalItems = Item::query()->count();
-        $percentageTagged = $taggedItems / $totalItems * 100;
+        $percentageTagged = $totalItems ? $taggedItems / $totalItems * 100 : 0;
 
         $randomStaleItems = Item::query()
             ->select('id', 'title', 'slug', 'hash')

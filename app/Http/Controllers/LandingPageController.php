@@ -50,13 +50,17 @@ class LandingPageController extends Controller
             ->get();
     }
 
-    protected function getTagTips(): Collection
+    protected function getTagTips(): ?Collection
     {
         $freshSeconds = 60 * 30; // Half hour.
         $staleSeconds = 60 * 60; // 1 hour.
 
         return Cache::flexible('tag_tips', [$freshSeconds, $staleSeconds], function () {
             $randomTag = $this->getRandomTag();
+
+            if (!$randomTag) {
+                return null;
+            }
 
             return collect(['tag' => $randomTag, 'items' => Item::query()
                 ->select(['id', 'hash', 'slug', 'title', 'summary'])
@@ -71,7 +75,7 @@ class LandingPageController extends Controller
     /**
      * Select a random Tag while preferring upcoming Tags and selecting them in equal probability year round.
      */
-    protected function getRandomTag(): Tag
+    protected function getRandomTag(): ?Tag
     {
         $monthsInAdvance = 3;
         $upcomingTags = Tag::has('items', '>=', self::LIST_LIMIT)->withUpcomingSpecialInterest($monthsInAdvance)->get();
@@ -84,9 +88,10 @@ class LandingPageController extends Controller
             $repeatedUpcomingTags = $repeatedUpcomingTags->merge($upcomingTags);
         }
 
-        return collect()
+        $tags = collect()
             ->merge($repeatedUpcomingTags)
-            ->merge($timelessTags)
-            ->random();
+            ->merge($timelessTags);
+
+        return $tags->isNotEmpty() ? $tags->random() : null;
     }
 }
