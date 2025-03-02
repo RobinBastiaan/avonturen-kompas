@@ -161,15 +161,16 @@ class ProcessItemsCommand extends Command
         }
 
         // Create new attributes array to compare with existing.
+        $title = $this->extractTitle($extractedItem->raw_content);
         $newAttributes = [
             'original_id'  => $extractedItem->original_id,
             'is_published' => true,
-            'title'        => $this->extractTitle($extractedItem->raw_content),
+            'title'        => $title,
             'slug'         => $extractedItem->original_slug,
             'is_camp'      => $isCamp,
             'camp_length'  => $this->extractCampLength($extractedItem->raw_content),
             'summary'      => $this->extractSummary($extractedItem->raw_content),
-            'description'  => $this->extractDescription($extractedItem->raw_content, $item->title),
+            'description'  => $this->extractDescription($extractedItem->raw_content, $title),
             'requirements' => $this->extractRequirements($extractedItem->raw_content),
             'tips'         => $this->extractTips($extractedItem->raw_content),
             'safety'       => $this->extractSafety($extractedItem->raw_content),
