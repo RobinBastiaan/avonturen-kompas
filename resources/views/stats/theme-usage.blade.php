@@ -5,7 +5,7 @@
 
     <div class="row mt-4">
         <div class="col-md-6">
-            <h3>Hotsjietonia Karakters</h3>
+            <h3 class="text-l font-semibold text-[#F2940A]">Hotsjietonia Karakters</h3>
             <table class="table table-striped">
                 <thead>
                 <tr>
@@ -25,7 +25,7 @@
         </div>
 
         <div class="col-md-6">
-            <h3>Jungle Boek Karakters</h3>
+            <h3 class="text-l font-semibold text-[#F2940A]">Jungle Boek Karakters</h3>
             <table class="table table-striped">
                 <thead>
                 <tr>
@@ -45,7 +45,7 @@
         </div>
 
         <div class="col-md-6">
-            <h3>Jungle Boek Locaties</h3>
+            <h3 class="text-l font-semibold text-[#F2940A]">Jungle Boek Locaties</h3>
             <table class="table table-striped">
                 <thead>
                 <tr>

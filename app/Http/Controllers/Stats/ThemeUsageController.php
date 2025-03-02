@@ -4,7 +4,13 @@ namespace App\Http\Controllers\Stats;
 
 use App\Http\Controllers\Controller;
 use App\Models\Item;
+use Illuminate\Support\Facades\Cache;
 
+/**
+ * Class ThemeUsageController.
+ *
+ * Show in how many Items each character or location of the Hotsjietonia and Jungle Book themes are used.
+ */
 class ThemeUsageController extends Controller
 {
     public function __invoke()
@@ -18,38 +24,45 @@ class ThemeUsageController extends Controller
 
     protected function getHotsjietoniaCharacterStats(): array
     {
-        $characters = [
-            'Fleur Kleur', 'Steven Stroom', 'Bas Bos', 'Rozemarijn',
-            'Professor Plof', 'Stuiter', 'Sterre', 'Noa', 'Stanley Stekker',
-        ];
+        return Cache::rememberForever('hotsjietonia_character_stats', function () {
+            $characters = [
+                'Fleur Kleur', 'Steven Stroom', 'Bas Bos', 'Rozemarijn',
+                'Professor Plof', 'Stuiter', 'Sterre', 'Noa', 'Stanley Stekker',
+            ];
 
-        return $this->getTermStats($characters);
+            return $this->getTermStats($characters);
+        });
     }
 
     protected function getJungleBookCharacterStats(): array
     {
-        $characters = [
-            'Akela', 'Bagheera', 'Baloe', 'Broer Wolf', 'Chil', 'Hathi',
-            'Ikki', 'Jacala', 'Kaa', 'Malchi', 'Mang', 'Marala', 'Mor',
-            'Mowgli', 'Oe', 'Raksha', 'Rikki Tikki Tavi', 'Shanti',
-            'Shere Khan', 'Tabaqui', 'Vader Wolf',
-        ];
+        return Cache::rememberForever('jungle_book_character_stats', function () {
+            // Note that there are more characters in the Jungle Book, but these are the one's that SN uses.
+            $characters = [
+                'Akela', 'Bagheera', 'Baloe', 'Broer Wolf', 'Chil', 'Hathi',
+                'Ikki', 'Jacala', 'Kaa', 'Malchi', 'Mang', 'Marala', 'Mor',
+                'Mowgli', 'Oe', 'Raksha', 'Rikki Tikki Tavi', 'Shanti',
+                'Shere Khan', 'Tabaqui', 'Vader Wolf',
+            ];
 
-        return $this->getTermStats($characters);
+            return $this->getTermStats($characters);
+        });
     }
 
     /**
-     * These jungle locations match an activity area, and a river for water specific activities.
+     * These jungle locations match an activity area, and the rivers for water specific activities.
      */
     protected function getJungleBookLocationStats(): array
     {
-        $locations = [
-            'Raadsrots', 'Wolvenhol', 'Khaali Jagah-vlakte',
-            'Nishaani-plaats', 'Haveli', 'Emaarate',
-            'Talaab-poel', 'Guhagrotten', 'Waingunga',
-        ];
+        return Cache::rememberForever('jungle_book_location_stats', function () {
+            $locations = [
+                'Raadsrots', 'Wolvenhol', 'Khaali Jagah-vlakte',
+                'Nishaani plaats', 'Haveli', 'Emaarate Ruïne',
+                'Talaab poel', 'Guha grotten', 'Waingunga', 'Kanyerivier',
+            ];
 
-        return $this->getTermStats($locations);
+            return $this->getTermStats($locations);
+        });
     }
 
     /**

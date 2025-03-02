@@ -94,6 +94,16 @@ class Item extends Model
 
         static::created(function () {
             Cache::forget('latest_additions');
+            Cache::forget('hotsjietonia_character_stats');
+            Cache::forget('jungle_book_character_stats');
+            Cache::forget('jungle_book_location_stats');
+        });
+
+        static::updated(function () {
+            Cache::forget('latest_additions');
+            Cache::forget('hotsjietonia_character_stats');
+            Cache::forget('jungle_book_character_stats');
+            Cache::forget('jungle_book_location_stats');
         });
     }
 
